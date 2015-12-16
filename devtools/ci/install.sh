@@ -15,8 +15,7 @@ conda config --add channels http://conda.binstar.org/omnia
 conda install --yes conda-build
 
 # install extra dependency for style checking
-- conda install --yes flake8
-#install msmb
-- conda install --yes msmbuilder
-- conda install --yes seaborn 
-- python setup.py install
+conda install --yes flake8
+conda install --yes msmbuilder
+conda install --yes seaborn 
+python setup.py install
