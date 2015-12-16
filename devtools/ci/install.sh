@@ -4,7 +4,6 @@ wget http://repo.continuum.io/miniconda/$MINICONDA
 if [[ $MINICONDA_MD5 != $(md5sum $MINICONDA | cut -d ' ' -f 1) ]]; then  echo "Miniconda MD5 mismatch"; exit 1; fi
 bash $MINICONDA -b
 export PATH=$HOME/miniconda3/bin:$PATH
-conda config --add channels http://conda.binstar.org/omnia
-conda create --yes -n test python=$python `cat requirements.txt | xargs`
+conda create --yes -n test python=$TRAVIS_PYTHON_VERSION `cat requirements.txt | xargs`
 source activate test
 python setup.py install
