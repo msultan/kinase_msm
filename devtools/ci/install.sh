@@ -10,8 +10,6 @@ PIP_ARGS="-U"
 
 export PATH=$HOME/miniconda/bin:$PATH
 
-sudo apt-get update
-
 conda update --yes conda
 conda config --add channels http://conda.binstar.org/omnia
 conda install --yes conda-build
