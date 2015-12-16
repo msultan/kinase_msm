@@ -3,7 +3,7 @@
 Tests to make sure the sequences were copied right
 '''
 
-from kinase_msm.kinases import *
+from kinase_msm.kinases import kinase_seq, kinase_set
 
 btk_test = "GSWEIDPKDLTFLKELGTGQFGVVKYGKWRGQYDVAIKMIKEGSMSEDEFIEEAKVMMNLSHEKLVQLY\
 GVCTKQRPIFIITEYMANGCLLNYLREMRHRFQTQQLLEMCKDVCEAMEYLESKQFLHRDLAARNCLVNDQGVVKVSDFG\
