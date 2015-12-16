@@ -1,1 +1,3 @@
 msmbuilder
+flake8
+seaborn
