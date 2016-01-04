@@ -12,7 +12,7 @@ def create_assignment_matrix(assignments):
     Non-used array positions are set to -1 . Useful for doing fast
     assignment lookups
     """
-    n_traj = np.shape(assignments.keys())[0]
+    n_traj = len(assignments.keys())
     max_length = np.max([np.shape(assignments[i]) for i in assignments.keys()])
     assignment_matrix = np.zeros((n_traj, max_length)) - 1
     key_mapping = {}
@@ -32,7 +32,7 @@ def create_tics_array(assignments, kmeans_mdl, tica_data):
     :return: tics_array: 3-D matrix os shape n_traj, max_length, num_of_tics.
     Useful for doing fast tic lookups. All non-used values are NANs
     """
-    n_traj = np.shape(assignments.keys())[0]
+    n_traj = len(assignments.keys())
     max_length = np.max([np.shape(assignments[i]) for i in assignments.keys()])
 
     tics_to_use = kmeans_mdl.cluster_centers_.shape[1]
