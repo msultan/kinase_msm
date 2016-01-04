@@ -12,8 +12,6 @@ def test_create_assignment_matrix():
 
     key_mapping, assignment_matrix = create_assignment_matrix(assignments)
 
-    assert key_mapping[0] == "traj1"
-    assert key_mapping[2] == "traj3"
     assert assignment_matrix.shape == (3, 4)
     assert (assignment_matrix[1][0:3] == assignments[key_mapping[1]][:3]).all()
 
