@@ -11,5 +11,5 @@ install:
 
 script:
   - nosetests -v
-  - flake8 `find . -name '*.py'  ! -name build ! -path './build/*' !
-            -path './docs*' | xargs`
+  #- flake8 `find . -name '*.py'  ! -name build ! -path './build/*' !
+   #         -path './docs*' | xargs`
