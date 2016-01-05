@@ -5,3 +5,5 @@ seaborn
 pyyaml
 yaml
 biopython
+pandas
+
