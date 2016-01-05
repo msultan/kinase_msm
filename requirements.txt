@@ -3,4 +3,5 @@ msmbuilder
 flake8
 seaborn
 pyyaml
+yaml
 biopython
