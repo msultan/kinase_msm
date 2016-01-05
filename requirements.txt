@@ -2,5 +2,5 @@ numpy
 msmbuilder
 flake8
 seaborn
-pyyaml
+PyYAML
 biopython
