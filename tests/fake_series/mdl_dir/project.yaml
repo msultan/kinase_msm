@@ -1,8 +1,0 @@
-base_dir: ./fake_series
-kinase_list: [fake_kinase1, fake_kinase2]
-mdl_params: {cluster__n_clusters: 174, tica__gamma: 0.01, tica__lag_time: 2, tica__n_components: 1,
-  tica__weighted_transform: true}
-project_dict:
-  fake_kinase1: [fake_proj1, fake_proj2]
-  fake_kinase2: [fake_proj3]
-series_name: fake_series
