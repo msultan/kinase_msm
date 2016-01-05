@@ -4,5 +4,6 @@ flake8
 seaborn
 pyyaml
 yaml
+nose
 pandas
 

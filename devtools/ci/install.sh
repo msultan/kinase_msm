@@ -7,7 +7,7 @@ export PATH=$HOME/miniconda3/bin:$PATH
 conda config --add channels omnia
 conda update conda
 conda info -a
-conda create --yes -n test python=$TRAVIS_PYTHON_VERSION `cat requirements.txt | xargs`
-source activate test
+conda create --yes -n _test python=$TRAVIS_PYTHON_VERSION `cat requirements.txt | xargs`
+source activate _test
 python -c 'import yaml'
 python setup.py install
