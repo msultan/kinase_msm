@@ -22,5 +22,5 @@ kinases associated with that set of projects. The kinase project \n
 
 It will generate a mdl_dir in the base_dir with sub directories for each kinase along with other data in the mdl dir. The general idea is to compare multiple kinases with each other or to make model for a single kinase only.  
 + mdl_dir 
-   + kinase1 \n
-   + kinase2 \n
+   + kinase1
+   + kinase2
