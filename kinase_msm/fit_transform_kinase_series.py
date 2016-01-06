@@ -140,9 +140,10 @@ def fit_bayes_msms(yaml_file):
     return
 
 
-def fit_pipeline(base_dir):
+def fit_pipeline(base_dir, mdl_dir=None):
     os.chdir(base_dir)
-    mdl_dir = yaml_file["mdl_dir"]
+    if mdl_dir is None:
+        mdl_dir = os.path.join(base_dir, "mdl_dir")
     fin = open(os.path.join(mdl_dir, "project.yaml"), 'r')
     yaml_file = yaml.load(fin)
 
