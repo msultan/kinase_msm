@@ -8,6 +8,8 @@ import time
 
 yaml_template = """
 base_dir : {base_dir}
+mdl_dir : {mdl_dir}
+feature_dir: {feature_dir}
 series_name : {series_name}
 kinase_list : {kinase_list}
 project_dict : {project_dict}
@@ -15,7 +17,7 @@ mdl_params : {mdl_params}
 """
 
 
-def setup_series_analysis(base_dir, series_name, kinase_list,
+def setup_series_analysis(base_dir, mdl_dir, feature_dir, series_name, kinase_list,
                           project_dict, mdl_params):
     """
     :param base_dir: Directory where all the data is found
@@ -41,11 +43,10 @@ def setup_series_analysis(base_dir, series_name, kinase_list,
                 raise Exception("Project %s for kinase %s doesn't exist"
                                 % (project, kinase))
 
-    mdl_dir = os.path.join(base_dir, "mdl_dir")
     if os.path.isdir(mdl_dir):
         ctime = str(int(time.time()))
         shutil.move(mdl_dir, mdl_dir + ctime)
-        warnings.warn("Moved Previous mdl dir to mdl_dir%s" % ctime)
+        warnings.warn("Moved Previous mdl dir to %s%s" % (mdl_dir,ctime))
     else:
         pass
 
@@ -55,6 +56,8 @@ def setup_series_analysis(base_dir, series_name, kinase_list,
 
     with open(os.path.join(mdl_dir, 'project.yaml'), 'w') as yaml_file:
         yaml_file.write(yaml.dump(yaml.load(yaml_template.format(base_dir=base_dir,
+                                                                 mdl_dir=mdl_dir,
+                                                                 feature_dir=feature_dir,
                                                                  series_name=series_name,
                                                                  kinase_list=kinase_list,
                                                                  project_dict=project_dict,
