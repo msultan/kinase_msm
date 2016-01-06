@@ -27,8 +27,8 @@ def fit_protein_tica(yaml_file):
     for protein in yaml_file["kinase_list"]:
         print("Fitting to protein %s" % protein)
         change_protein_data_dir(yaml_file["base_dir"], protein)
-        featurized_traj = sorted(glob.glob("./%s/*.h5") %
-                                 yaml_file["feature_dir"])
+        featurized_traj = sorted(glob.glob("./%s/*.h5"%
+                                 yaml_file["feature_dir"]), key=keynat)
         for f in featurized_traj:
             featurized_path = verboseload(f)
             try:
@@ -49,8 +49,8 @@ def transform_protein_tica(yaml_file):
     for protein in protein_list:
         change_protein_data_dir(yaml_file["base_dir"], protein)
         print("Transforming protein %s" % protein)
-        featurized_traj = sorted(glob.glob("./%s/*.h5") %
-                                 yaml_file["feature_dir"])
+        featurized_traj = sorted(glob.glob("./%s/*.h5"%
+                                 yaml_file["feature_dir"]), key=keynat)
         tica_data = {}
         for f in featurized_traj:
             featurized_path = verboseload(f)
