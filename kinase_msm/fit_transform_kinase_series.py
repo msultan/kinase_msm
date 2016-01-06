@@ -5,6 +5,7 @@ from msmbuilder.utils import verboseload, verbosedump
 import glob
 from msmbuilder.msm import BayesianMarkovStateModel, MarkovStateModel
 import yaml
+import os
 from msmbuilder.cluster import MiniBatchKMeans
 from msmbuilder.dataset import _keynat as keynat
 from kinase_msm.data_loader import change_protein_data_dir, change_protein_mdl_dir
