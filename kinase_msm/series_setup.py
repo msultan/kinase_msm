@@ -5,6 +5,7 @@ import yaml
 import warnings
 import shutil
 import time
+from __future__ import print_function
 
 yaml_template = """
 base_dir : {base_dir}

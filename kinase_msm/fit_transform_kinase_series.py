@@ -9,7 +9,7 @@ import os
 from msmbuilder.cluster import MiniBatchKMeans
 from msmbuilder.dataset import _keynat as keynat
 from kinase_msm.data_loader import change_protein_data_dir, change_protein_mdl_dir
-
+from __future__ import print_function
 
 def fit_protein_tica(yaml_file):
     mdl_dir = yaml_file["mdl_dir"]
