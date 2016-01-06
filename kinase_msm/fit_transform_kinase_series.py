@@ -26,7 +26,7 @@ def fit_protein_tica(yaml_file):
 
     for protein in yaml_file["kinase_list"]:
         print("Fitting to protein %s" % protein)
-        change_protein_data_dir(protein)
+        change_protein_data_dir(yaml_file["base_dir"], protein)
         featurized_traj = sorted(glob.glob("./%s/*.h5") %
                                  yaml_file["feature_dir"])
         for f in featurized_traj:
@@ -75,7 +75,7 @@ def fit_protein_kmeans(yaml_file):
     data = []
 
     for protein in yaml_file["kinase_list"]:
-        change_protein_dir(protein)
+        change_protein_mdl_dir(yaml_file["base_dir"], protein)
         tica_data = verboseload("tica_data.pkl")
         # get all traj
         sorted_list = sorted(tica_data.keys(), key=keynat)
