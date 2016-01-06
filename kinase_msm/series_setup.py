@@ -27,7 +27,8 @@ def setup_series_analysis(base_dir, mdl_dir, feature_dir, series_name, kinase_li
     holds the projects corresponding to the kinase
     :param mdl_params: Mdl that is being built
     :return:The script will backup and current mdl_dir and make a new
-    directory with a clean set of subfolders and a yaml file
+    directory with a clean set of subfolders and a yaml file. The
+    yaml file will also be returned to directly be fed into the fit transform.
     """
     if not os.path.isdir(base_dir):
         raise Exception("Base directory doesn't exist")
@@ -54,13 +55,14 @@ def setup_series_analysis(base_dir, mdl_dir, feature_dir, series_name, kinase_li
     for kinase in kinase_list:
         os.mkdir(os.path.join(mdl_dir, kinase))
 
-    with open(os.path.join(mdl_dir, 'project.yaml'), 'w') as yaml_file:
-        yaml_file.write(yaml.dump(yaml.load(yaml_template.format(base_dir=base_dir,
+    with open(os.path.join(mdl_dir, 'project.yaml'), 'w') as yaml_out:
+        yaml_file = yaml.load(yaml_template.format(base_dir=base_dir,
                                                                  mdl_dir=mdl_dir,
                                                                  feature_dir=feature_dir,
                                                                  series_name=series_name,
                                                                  kinase_list=kinase_list,
                                                                  project_dict=project_dict,
-                                                                 mdl_params=mdl_params))))
+                                                                 mdl_params=mdl_params))
+        yaml_out.write(yaml.dump(yaml_file))
 
-    return
+    return yaml_file

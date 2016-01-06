@@ -152,5 +152,4 @@ def fit_pipeline(base_dir):
     fit_msms(yaml_file)
     fit_bayes_msms(yaml_file)
 
-if __name__ == "__main__":
-    fit_pipeline()
+    return
