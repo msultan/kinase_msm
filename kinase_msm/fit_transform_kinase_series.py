@@ -93,8 +93,8 @@ def fit_protein_kmeans(yaml_file):
 
 def transform_protein_kmeans(yaml_file):
     mdl_dir = yaml_file["mdl_dir"]
-    kmeans_obj_path = os.path.join(mdl_dir, "kmeans_obj.pkl")
-    kmeans_mdl = verboseload(kmeans_obj_path)
+    kmeans_mdl_path = os.path.join(mdl_dir, "kmeans_mdl.pkl")
+    kmeans_mdl = verboseload(kmeans_mdl_path)
     for protein in yaml_file["kinase_list"]:
         print("Assigning protein %s" % protein)
         change_protein_mdl_dir(yaml_file["base_dir"],protein)
