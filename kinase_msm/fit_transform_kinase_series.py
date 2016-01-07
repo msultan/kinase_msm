@@ -27,7 +27,7 @@ def fit_protein_tica(yaml_file):
     for protein in yaml_file["kinase_list"]:
         print("Fitting to protein %s" % protein)
         change_protein_data_dir(yaml_file["base_dir"], protein)
-        featurized_traj = sorted(glob.glob("./%s/*.h5"%
+        featurized_traj = sorted(glob.glob("./%s/*.jl"%
                                  yaml_file["feature_dir"]), key=keynat)
         for f in featurized_traj:
             featurized_path = verboseload(f)
@@ -46,7 +46,7 @@ def transform_protein_tica(yaml_file):
     mdl_dir = yaml_file["mdl_dir"]
     tica_obj_path = os.path.join(mdl_dir, "tica_mdl.pkl")
     protein_tica_mdl = verboseload(tica_obj_path)
-    for protein in protein_list:
+    for protein in yaml_file["kinase_list"]:
         change_protein_data_dir(yaml_file["base_dir"], protein)
         print("Transforming protein %s" % protein)
         featurized_traj = sorted(glob.glob("./%s/*.h5"%
@@ -95,7 +95,7 @@ def transform_protein_kmeans(yaml_file):
     mdl_dir = yaml_file["mdl_dir"]
     kmeans_obj_path = os.path.join(mdl_dir, "kmeans_obj.pkl")
     kmeans_mdl = verboseload(kmeans_obj_path)
-    for protein in protein_list:
+    for protein in yaml_file["kinase_list"]:
         print("Assigning protein %s" % protein)
         change_protein_mdl_dir(yaml_file["base_dir"],protein)
         tica_data = verboseload("tica_data.pkl")
@@ -112,7 +112,7 @@ def transform_protein_kmeans(yaml_file):
 def fit_msms(yaml_file):
     mdl_params = yaml_file["mdl_params"]
     msm__lag_time = mdl_params["msm__lag_time"]
-    for protein in protein_list:
+    for protein in yaml_file["kinase_list"]:
         print(protein)
         change_protein_mdl_dir(yaml_file["base_dir"], protein)
         assignments = verboseload("assignments.pkl")
@@ -130,7 +130,7 @@ def fit_msms(yaml_file):
 def fit_bayes_msms(yaml_file):
     mdl_params = yaml_file["mdl_params"]
     msm__lag_time = mdl_params["msm__lag_time"]
-    for protein in protein_list:
+    for protein in yaml_file["kinase_list"]:
         print(protein)
         change_protein_mdl_dir(yaml_file["base_dir"], protein)
         assignments = verboseload("assignments.pkl")
