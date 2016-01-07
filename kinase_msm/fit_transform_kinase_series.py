@@ -49,7 +49,7 @@ def transform_protein_tica(yaml_file):
     for protein in yaml_file["kinase_list"]:
         change_protein_data_dir(yaml_file["base_dir"], protein)
         print("Transforming protein %s" % protein)
-        featurized_traj = sorted(glob.glob("./%s/*.h5"%
+        featurized_traj = sorted(glob.glob("./%s/*.jl"%
                                  yaml_file["feature_dir"]), key=keynat)
         tica_data = {}
         for f in featurized_traj:
