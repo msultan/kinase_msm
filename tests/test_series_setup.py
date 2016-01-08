@@ -21,7 +21,7 @@ def test_setup_series_analysis():
     mdl_dir = os.path.join(base_dir,"new_mdl_dir")
     feature_dir = "feature_dir"
     series_name = "fake_series"
-    kinase_list = ["fake_kinase1", "fake_kinase2"]
+    protein_list = ["fake_kinase1", "fake_kinase2"]
     project_dict = {"fake_kinase1": ["fake_proj1", "fake_proj2"],
                     "fake_kinase2": ["fake_proj3"]}
     mdl_params = {'tica__n_components': 1, 'tica__lag_time': 2,
@@ -31,19 +31,19 @@ def test_setup_series_analysis():
     with enter_temp_directory():
         create_fake_series()
         setup_series_analysis(base_dir, mdl_dir, feature_dir,
-                              series_name, kinase_list,
+                              series_name, protein_list,
                               project_dict, mdl_params)
 
         assert os.path.isdir(mdl_dir)
-        for kinase in kinase_list:
-            assert os.path.isdir(os.path.join(mdl_dir, kinase))
+        for protein in protein_list:
+            assert os.path.isdir(os.path.join(mdl_dir, protein))
 
         fin = open(os.path.join(mdl_dir,"project.yaml"), 'r')
         yaml_file = yaml.load(fin)
 
         assert yaml_file["base_dir"] == base_dir
         assert yaml_file["series_name"] == series_name
-        assert yaml_file["kinase_list"] == kinase_list
+        assert yaml_file["protein_list"] == protein_list
         assert yaml_file["project_dict"] == project_dict
         assert yaml_file["mdl_params"] == mdl_params
 
@@ -54,7 +54,7 @@ def test_multiple_mdls():
     mdl_dir = os.path.join(base_dir,"new_mdl_dir")
     feature_dir = "feature_dir"
     series_name = "fake_series"
-    kinase_list = ["fake_kinase1", "fake_kinase2"]
+    protein_list = ["fake_kinase1", "fake_kinase2"]
     project_dict = {"fake_kinase1": ["fake_proj1", "fake_proj2"],
                     "fake_kinase2": ["fake_proj3"]}
     mdl_params = {'tica__n_components': 4, 'tica__lag_time': 223,
@@ -65,7 +65,7 @@ def test_multiple_mdls():
         create_fake_series()
         for i in range(3):
             setup_series_analysis(base_dir, mdl_dir, feature_dir,
-                                  series_name, kinase_list,
+                                  series_name, protein_list,
                                   project_dict, mdl_params)
             time.sleep(1)
         assert len(glob.glob("./fake_series/*/project.yaml")) == 3
