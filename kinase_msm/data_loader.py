@@ -2,6 +2,7 @@ import os
 from msmbuilder.utils import verboseload, verbosedump
 import mdtraj as mdt
 import numpy as np
+import yaml
 
 '''
 script to load pertinent data for a given protein
@@ -56,7 +57,7 @@ def load_frame(base_dir, protein, filename, frame_index):
     return load_traj(base_dir,protein,filename)[frame_index]
 
 
-def sanity_test(base_dir, protein, msm_mdl, tica_data, kmeans_mdl, assignments):
+def _sanity_test(base_dir, protein, msm_mdl, tica_data, kmeans_mdl, assignments):
     tics_to_use = kmeans_mdl.cluster_centers_.shape[1]
     for i, v in enumerate(tica_data.keys()[:20]):
         # skip
@@ -64,12 +65,16 @@ def sanity_test(base_dir, protein, msm_mdl, tica_data, kmeans_mdl, assignments):
 
             assert((msm_mdl.transform(kmeans_mdl.transform(
                 [tica_data[v][:, :tics_to_use]])) == assignments[v]).all())
-            trj = load_traj(base_dir, mutant, v.split(".h5")[0])
+            trj = load_traj(base_dir, mutant, v.split(".jl")[0])
             assert(trj.n_frames == assignments[v].shape[0])
     return
 
 
-def load_current_protein_model(base_dir, protein, sanity=True):
+def load_yaml_file(yaml_file):
+    return yaml.load(open(yaml_file,'r'))
+
+
+def load_current_protein_model(yaml_file, protein, sanity=True):
     """
     :param base_dir: Base directory for the project
     :param protein: Protein for which to load
@@ -80,8 +85,10 @@ def load_current_protein_model(base_dir, protein, sanity=True):
                 fixed_assignments for the model currently stored in
                 mdl_dir and mdl_dir/protein
     """
-    mdl_dir = os.path.join(base_dir, "mdl_dir")
-    prot_mdl_dir = os.path.join(base_dir, protein)
+    yaml_file = load_yaml_file(yaml_file)
+    base_dir = yaml_file["base_dir"]
+    mdl_dir = yaml_file["mdl_dir"]
+    prot_mdl_dir = os.path.join(mdl_dir, protein)
 
     #load the project level information first
     kmeans_mdl = verboseload(os.path.join(mdl_dir, "kmeans_mdl.pkl"))
@@ -94,6 +101,7 @@ def load_current_protein_model(base_dir, protein, sanity=True):
     msm_mdl = verboseload(os.path.join(prot_mdl_dir, "msm_mdl.pkl"))
     # some sanity tests
     if sanity:
-        sanity_test(base_dir, protein, msm_mdl,
+        _sanity_test(base_dir, protein, msm_mdl,
                     tica_data, kmeans_mdl, assignments)
     return base_dir, mdl_dir, msm_mdl, tica_mdl, tica_data, kmeans_mdl, assignments
+
