@@ -60,7 +60,7 @@ def pull_frames(yaml_file, protein_name, tic_index, n_frames, key_mapping,
 
     save_dir = os.path.join(yaml_file["mdl_dir"],protein_name)
     #dump the log file
-    with open(os.path.join("tic%d.log"%tic_index,"w")) as fout:
+    with open(os.path.join("tic%d.log"%tic_index),"w") as fout:
         fout.write("Tic Value, Actual Value, TrajName, FrmInd\n")
         for line in actual_tic_val_list:
             fout.write("%s\n"%line)
