@@ -83,7 +83,8 @@ def sample_one_tic(yaml_file,protein_name,tic_index,n_frames, scheme="linear"):
     prt = Protein(prj, protein_name)
 
     key_mapping, assignment_matrix  = create_assignment_matrix(prt.fixed_assignments)
-    _ , tics_array  = create_tics_array(prt.tica_data)
+    _ , tics_array  = create_tics_array(prt.fixed_assignments, prt.kmeans_mdl,
+                                        prt.tica_data)
 
     yaml_file = load_yaml_file(yaml_file)
     pull_frames(yaml_file,protein_name,tic_index,n_frames,key_mapping,assignment_matrix,
