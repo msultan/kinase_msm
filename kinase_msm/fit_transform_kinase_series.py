@@ -10,6 +10,7 @@ from msmbuilder.cluster import MiniBatchKMeans
 from msmbuilder.dataset import _keynat as keynat
 from kinase_msm.data_loader import change_protein_data_dir, change_protein_mdl_dir, load_yaml_file
 
+
 def fit_protein_tica(yaml_file):
     mdl_dir = yaml_file["mdl_dir"]
     mdl_params = yaml_file["mdl_params"]
@@ -26,8 +27,8 @@ def fit_protein_tica(yaml_file):
     for protein in yaml_file["protein_list"]:
         print("Fitting to protein %s" % protein)
         change_protein_data_dir(yaml_file["base_dir"], protein)
-        featurized_traj = sorted(glob.glob("./%s/*.jl"%
-                                 yaml_file["feature_dir"]), key=keynat)
+        featurized_traj = sorted(glob.glob("./%s/*.jl" %
+                                           yaml_file["feature_dir"]), key=keynat)
         for f in featurized_traj:
             featurized_path = verboseload(f)
             try:
@@ -35,7 +36,7 @@ def fit_protein_tica(yaml_file):
             except:
                 pass
         print("Done partial fitting to protein %s" % protein)
-    #dumping the tica_mdl
+    # dumping the tica_mdl
     tica_mdl_path = os.path.join(mdl_dir, "tica_mdl.pkl")
     verbosedump(protein_tica_mdl, tica_mdl_path)
     return
@@ -48,8 +49,8 @@ def transform_protein_tica(yaml_file):
     for protein in yaml_file["protein_list"]:
         change_protein_data_dir(yaml_file["base_dir"], protein)
         print("Transforming protein %s" % protein)
-        featurized_traj = sorted(glob.glob("./%s/*.jl"%
-                                 yaml_file["feature_dir"]), key=keynat)
+        featurized_traj = sorted(glob.glob("./%s/*.jl" %
+                                           yaml_file["feature_dir"]), key=keynat)
         tica_data = {}
         for f in featurized_traj:
             featurized_path = verboseload(f)
@@ -96,7 +97,7 @@ def transform_protein_kmeans(yaml_file):
     kmeans_mdl = verboseload(kmeans_mdl_path)
     for protein in yaml_file["protein_list"]:
         print("Assigning protein %s" % protein)
-        change_protein_mdl_dir(yaml_file["base_dir"],protein)
+        change_protein_mdl_dir(yaml_file["base_dir"], protein)
         tica_data = verboseload("tica_data.pkl")
         # do assignments
         assignments = {}
@@ -130,7 +131,7 @@ def fit_msms(yaml_file):
 def fit_bayes_msms(yaml_file):
     mdl_params = yaml_file["mdl_params"]
     msm__lag_time = mdl_params["msm__lag_time"]
-    if "bayesmsm__n_samples"  in mdl_params.keys():
+    if "bayesmsm__n_samples" in mdl_params.keys():
         bayesmsm__n_samples = mdl_params["bayesmsm__n_samples"]
     else:
         bayesmsm__n_samples = 800

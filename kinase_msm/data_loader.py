@@ -54,7 +54,7 @@ def load_frame(base_dir, protein, filename, frame_index):
     :param frame_index: needed frame
     :return: The required frame
     """
-    return load_traj(base_dir,protein,filename)[frame_index]
+    return load_traj(base_dir, protein, filename)[frame_index]
 
 
 def _sanity_test(base_dir, protein, msm_mdl, tica_data, kmeans_mdl, assignments):
@@ -71,7 +71,7 @@ def _sanity_test(base_dir, protein, msm_mdl, tica_data, kmeans_mdl, assignments)
 
 
 def load_yaml_file(yaml_file):
-    return yaml.load(open(yaml_file,'r'))
+    return yaml.load(open(yaml_file, 'r'))
 
 
 def load_current_protein_model(yaml_file, protein, sanity=True):
@@ -88,20 +88,21 @@ def load_current_protein_model(yaml_file, protein, sanity=True):
     yaml_file = load_yaml_file(yaml_file)
     base_dir = yaml_file["base_dir"]
     mdl_dir = yaml_file["mdl_dir"]
+
     prot_mdl_dir = os.path.join(mdl_dir, protein)
 
-    #load the project level information first
+    # load the project level information first
     kmeans_mdl = verboseload(os.path.join(mdl_dir, "kmeans_mdl.pkl"))
     tica_mdl = verboseload(os.path.join(mdl_dir, "tica_mdl.pkl"))
 
-    #now load the protein level information
+    # now load the protein level information
     tica_data = verboseload(os.path.join(prot_mdl_dir, "tica_data.pkl"))
     # need the fixed assignments because otherwise we will have issues
-    assignments = verboseload(os.path.join(prot_mdl_dir, "fixed_assignments.pkl"))
+    assignments = verboseload(os.path.join(
+        prot_mdl_dir, "fixed_assignments.pkl"))
     msm_mdl = verboseload(os.path.join(prot_mdl_dir, "msm_mdl.pkl"))
     # some sanity tests
     if sanity:
         _sanity_test(base_dir, protein, msm_mdl,
-                    tica_data, kmeans_mdl, assignments)
+                     tica_data, kmeans_mdl, assignments)
     return base_dir, mdl_dir, msm_mdl, tica_mdl, tica_data, kmeans_mdl, assignments
-

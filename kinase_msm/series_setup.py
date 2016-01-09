@@ -48,7 +48,7 @@ def setup_series_analysis(base_dir, mdl_dir, feature_dir, series_name, protein_l
     if os.path.isdir(mdl_dir):
         ctime = str(int(time.time()))
         shutil.move(mdl_dir, mdl_dir + ctime)
-        warnings.warn("Moved Previous mdl dir to %s%s" % (mdl_dir,ctime))
+        warnings.warn("Moved Previous mdl dir to %s%s" % (mdl_dir, ctime))
     else:
         pass
 
@@ -58,12 +58,12 @@ def setup_series_analysis(base_dir, mdl_dir, feature_dir, series_name, protein_l
 
     with open(os.path.join(mdl_dir, 'project.yaml'), 'w') as yaml_out:
         yaml_file = yaml.load(yaml_template.format(base_dir=base_dir,
-                                                                 mdl_dir=mdl_dir,
-                                                                 feature_dir=feature_dir,
-                                                                 series_name=series_name,
-                                                                 protein_list=protein_list,
-                                                                 project_dict=project_dict,
-                                                                 mdl_params=mdl_params))
+                                                   mdl_dir=mdl_dir,
+                                                   feature_dir=feature_dir,
+                                                   series_name=series_name,
+                                                   protein_list=protein_list,
+                                                   project_dict=project_dict,
+                                                   mdl_params=mdl_params))
         yaml_out.write(yaml.dump(yaml_file))
 
     return yaml_file

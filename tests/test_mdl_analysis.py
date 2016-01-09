@@ -8,6 +8,7 @@ from msmbuilder.msm import MarkovStateModel
 from msmbuilder.utils import verboseload
 from mdtraj.utils.contextmanagers import enter_temp_directory
 from test_pipeline import create_fake_data
+import numpy as np
 
 def test_project():
     with enter_temp_directory():
@@ -27,7 +28,7 @@ def test_project():
 
         create_fake_data(base_dir, protein_list, project_dict)
 
-        yaml_file = setup_series_analysis(base_dir, mdl_dir, feature_dir,
+        setup_series_analysis(base_dir, mdl_dir, feature_dir,
                                   series_name, protein_list,
                                   project_dict, mdl_params)
         fit_pipeline(base_dir)
@@ -39,6 +40,9 @@ def test_project():
 
         assert _test_protein_without_project()
         assert _test_protein_with_project(prj)
+        assert _test_tic_dict(prj)
+
+    return
 
 
 def _test_protein_without_project():
@@ -49,6 +53,20 @@ def _test_protein_without_project():
         assert not isinstance(p1, Protein)
         return True
     return
+
+def _test_tic_dict(prj):
+    p1 = Protein(prj, "kinase_1")
+    p1._get_all_tics()
+    current_data = []
+    rnd_tic = np.random.randint(p1.n_tics_)
+    rnd_state = np.random.randint(p1.n_states_)
+    for traj_index, traj_name in enumerate(p1.fixed_assignments.keys()):
+        for f_i, f in enumerate(p1.fixed_assignments[traj_name]):
+            if f == rnd_state:
+                current_data.append(p1.tica_data[traj_name][f_i][rnd_tic])
+    assert len(current_data)==len(p1.tic_data(rnd_tic)[rnd_state])
+    assert current_data == p1.tic_data(rnd_tic)[rnd_state]
+    return True
 
 def _test_protein_with_project(prj):
     p1 = Protein(prj, "kinase_1")
