@@ -46,8 +46,6 @@ def pull_frames(yaml_file, protein_name, tic_index, n_frames, key_mapping,
     actual_tic_val_list=[]
     for v,i in enumerate(lin_place_points):
         actual_tic_val = find_nearest(tics_array[:,:,tic_index],i)
-        actual_tic_val_list.append(actual_tic_val)
-
         traj_index, frame_index = np.where(tics_array[:,:,tic_index]==actual_tic_val)
         traj_name = key_mapping[traj_index[0]]
         actual_tic_val_list.append([i, actual_tic_val,traj_name,frame_index[0]])
