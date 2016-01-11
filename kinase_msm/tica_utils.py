@@ -7,7 +7,7 @@ from kinase_msm.data_loader import load_frame
 from kinase_msm.data_transformer import create_assignment_matrix, create_tics_array
 
 """
-Set of helper scripts for sampling tica
+Set of helper scripts for sampling tics
 """
 
 def find_nearest(a, a0):
@@ -28,7 +28,10 @@ def pull_frames(yaml_file, protein_name, tic_index, n_frames, key_mapping,
     :param assignment_matrix:matrix of assignment
     :param tics_array:3d array of all tica daata
     :param tica_data:Dictionary of tica files
-    :param scheme:Only linearly sampled
+    :param scheme:One of 3
+    linear:Samples the tic linearly
+    random:Samples the tic randomly
+    edge: Samples the tic edges only
     :return:
     :output: This will write out a log file and a xtc file. The log file will
     contain the values of the tic that were obtained while the xtc file will contain
@@ -36,15 +39,31 @@ def pull_frames(yaml_file, protein_name, tic_index, n_frames, key_mapping,
     """
 
     #get some statistics about the data
-    max_tic_movement = max([max(i[:,tic_index]) for i in tica_data.values()])
-    min_tic_movement = min([min(i[:,tic_index]) for i in tica_data.values()])
 
+    all_vals = []
+    for traj_tica_data in tica_data.values():
+        all_vals.extend(traj_tica_data[:,tic_index])
+
+    #sort it because all three sampling schemes use it
+    all_vals = np.sort(all_vals)
     #get lineraly placed points
     if scheme=="linear":
-        lin_place_points = np.linspace(min_tic_movement, max_tic_movement, n_frames)
+        max_tic_movement = all_vals[-1]
+        min_tic_movement = all_vals[0]
+        spaced_points = np.linspace(min_tic_movement, max_tic_movement, n_frames)
+
+    elif scheme=="random":
+        spaced_points = np.random.choice(all_vals, n_frames)
+
+    elif scheme=="edge":
+        _cut_point = np.int(n_frames / 2)
+        spaced_points = np.hstack((all_vals[:_cut_point],all_vals[-_cut_point:]))
+    else:
+        raise Exception("Scheme has be to one of linear, random or edge")
+
     traj_list = []
     actual_tic_val_list=[]
-    for v,i in enumerate(lin_place_points):
+    for v,i in enumerate(spaced_points):
         actual_tic_val = find_nearest(tics_array[:,:,tic_index],i)
         actual_tic_val_list.append(actual_tic_val)
 
@@ -93,24 +112,7 @@ def sample_one_tic(yaml_file,protein_name,tic_index,n_frames, scheme="linear"):
     return
 
 
-def sample_all_tics(yaml_file, protein_name, n_frames, scheme="linear"):
-    """
-    :param yaml_file: The project's yaml file
-    :param protein: The name of protein
-    :param n_frames: The number of frames needed for each tic
-    :return: Dumps the tic%d_lin.xtc in the protein mdl
-    folders for each of the tics
-    """
-    prj = Project(yaml_file)
-    prt = Protein(prj, protein_name)
-
-    for tic_index in range(prt.n_tics_):
-        sample_one_tic(yaml_file, protein_name, tic_index, n_frames, scheme)
-
-    return
-
-
-def sample_for_all_proteins(yaml_file, protein=None, tics=[0], n_frames=100,
+def sample_for_all_proteins(yaml_file, protein=None, tics=None, n_frames=100,
                             scheme="linear"):
     """
     :param yaml_file: The project yaml file.
@@ -119,17 +121,25 @@ def sample_for_all_proteins(yaml_file, protein=None, tics=[0], n_frames=100,
     it is iteratively done for each of the protein else its only called
     once.
     :param tics: list of tics to sample from. If None, then
-    it is only done for the dominant tic
+    it is done for all the tics specified in the yaml file
+    :param n_frames number of frames wanted for each tic
+    :param scheme:One of 3 sampling schemes
+    linear:Samples the tic linearly
+    random:Samples the tic randomly
+    edge: Samples the tic edges only
     :return:
     """
+
     yaml_file = load_yaml_file(yaml_file)
     if protein is None :
-        for protein in yaml_file[protein_list]:
-            sample_all_tics(yaml_file, protein, n_frames)
-    else:
-        for protein_name in protein:
-            sample_all_tics(yaml_file, protein_name, n_frames)
+        protein =  yaml_file[protein_list]
 
+    if tics==None:
+        tics = range(yaml_file["params"]["tica__n_components"])
 
+    for protein_name in protein:
+        for tic_index in tics:
+            sample_one_tic(yaml_file, protein_name, tic_index, n_frames,
+                           scheme)
 
     return
