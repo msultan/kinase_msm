@@ -53,7 +53,7 @@ def pull_frames(yaml_file, protein_name, tic_index, n_frames, key_mapping,
         spaced_points = np.linspace(min_tic_movement, max_tic_movement, n_frames)
 
     elif scheme=="random":
-        spaced_points = np.random.choice(all_vals, n_frames)
+        spaced_points = np.sort(np.random.choice(all_vals, n_frames))
 
     elif scheme=="edge":
         _cut_point = np.int(n_frames / 2)
