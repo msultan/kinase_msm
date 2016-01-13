@@ -43,6 +43,7 @@ class Protein(object):
         self.n_tics_ = self.kmeans_mdl.cluster_centers_.shape[1]
         self.tic_dict = {}
 
+
     def _get_all_tics(self):
         """
         fill in all the tics at once in the tic dict which is useful
