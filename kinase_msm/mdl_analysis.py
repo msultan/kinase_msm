@@ -11,9 +11,10 @@ class Project(object):
         self.yaml_file = load_yaml_file(yaml_file)
         self.base_dir = self.yaml_file["base_dir"]
         self.mdl_dir = self.yaml_file["mdl_dir"]
+        self.relative_loc = os.path.split(yaml_file)[0]
         self.kmeans_mdl = verboseload(
-            os.path.join(self.mdl_dir, "kmeans_mdl.pkl"))
-        self.tica_mdl = verboseload(os.path.join(self.mdl_dir, "tica_mdl.pkl"))
+            os.path.join(self.relative_loc, "kmeans_mdl.pkl"))
+        self.tica_mdl = verboseload(os.path.join(self.relative_loc, "tica_mdl.pkl"))
 
 
 class Protein(object):
@@ -29,7 +30,7 @@ class Protein(object):
         self.project = series
         self.kmeans_mdl = self.project.kmeans_mdl
         self.tica_mdl = self.project.tica_mdl
-        self.protein_mdl_dir = os.path.join(self.project.mdl_dir, self.name)
+        self.protein_mdl_dir = os.path.join(self.project.relative_loc, self.name)
         self.msm = verboseload("%s/msm_mdl.pkl" % self.protein_mdl_dir)
         self.bayes_mdl = verboseload(
             '%s/bayesmsm_mdl.pkl' % self.protein_mdl_dir)
