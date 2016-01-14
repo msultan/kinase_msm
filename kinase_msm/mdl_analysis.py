@@ -41,33 +41,35 @@ class Protein(object):
             "%s/fixed_assignments.pkl" % self.protein_mdl_dir)
         self.n_states_ = self.msm.n_states_
         self.n_tics_ = self.kmeans_mdl.cluster_centers_.shape[1]
-        self.tic_dict = {}
 
+   # @property
+    # def tic_dict(self):
+    #     self._get_all_tics()
 
-    def _get_all_tics(self):
+    @property
+    def tic_dict(self):
         """
         fill in all the tics at once in the tic dict which is useful
         :return:
         """
-        if not self.tic_dict:
-            for tic_index in range(self.n_tics_):
-                self.tic_dict[tic_index] = {}
-                for j in range(self.n_states_):
-                    self.tic_dict[tic_index][j] = []
+        tic_dict = {}
+        for tic_index in range(self.n_tics_):
+            tic_dict[tic_index] = {}
+            for j in range(self.n_states_):
+                tic_dict[tic_index][j] = []
 
-            for traj_index, traj_name in enumerate(self.fixed_assignments.keys()):
-                # for all the fixed_state assignments
-                for f_i, fixed_state in enumerate(self.fixed_assignments[traj_name]):
+        for traj_index, traj_name in enumerate(self.fixed_assignments.keys()):
+            # for all the fixed_state assignments
+            for f_i, fixed_state in enumerate(self.fixed_assignments[traj_name]):
                     # go through and find the
-                    try:
-                        for tic_index in range(self.n_tics_):
-                            self.tic_dict[tic_index][fixed_state].append(
-                                self.tica_data[traj_name][f_i][tic_index])
-                    except:
-                        pass
-            return
-        else:
-            return
+                try:
+                    for tic_index in range(self.n_tics_):
+                        tic_dict[tic_index][fixed_state].append(
+                        self.tica_data[traj_name][f_i][tic_index])
+                except:
+                    pass
+        return tic_dict
+
 
     def tic_data(self, tic_index):
         """
@@ -76,5 +78,4 @@ class Protein(object):
         :param tic_index:
         :return: a dictionary of lists
         """
-        self._get_all_tics()
         return self.tic_dict[tic_index]

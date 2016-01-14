@@ -56,7 +56,7 @@ def _test_protein_without_project():
 
 def _test_tic_dict(prj):
     p1 = Protein(prj, "kinase_1")
-    p1._get_all_tics()
+    #p1._get_all_tics()
     current_data = []
     rnd_tic = np.random.randint(p1.n_tics_)
     rnd_state = np.random.randint(p1.n_states_)
