@@ -19,13 +19,10 @@ def global_tic_boundaries(prt_list, tic_list, n_bins=100):
     assert isinstance(prt_list,list)
     results_dict = {}
     for tic_index in tic_list:
-
-        min_tic_val = min([min(min(list(prot.tic_dict[tic_index].values())))
-                           for prot in prt_list])
-        max_tic_val = max([max(max(list(prot.tic_dict[tic_index].values())))
-                           for prot in prt_list])
-
+        min_tic_val = min([prot.tic_min[tic_index] for prot in prt_list])
+        max_tic_val =  max([prot.tic_max[tic_index] for prot in prt_list])
         results_dict[tic_index] = np.linspace(min_tic_val,max_tic_val,n_bins)
+
     return results_dict
 
 def histogram_data(prj, prt, tic_list, x_array=None, y_array=None, n_bins=100):
