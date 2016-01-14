@@ -70,6 +70,29 @@ class Protein(object):
                     pass
         return tic_dict
 
+    @property
+    def tic_min(self):
+        '''
+        :return: contains a list of the minimum value along every tic coordinate
+        '''
+        tic_min = []
+        for tic_index in range(self.n_tics_):
+            cur_tic_min = min([min(i) for i in self.tic_dict[tic_index].values()])
+            tic_min.append(cur_tic_min)
+
+        return tic_min
+
+    @property
+    def tic_max(self):
+        '''
+        :return: contains a list of the maximum value along every tic coordinate
+        '''
+        tic_max = []
+        for tic_index in range(self.n_tics_):
+            cur_tic_min = max([max(i) for i in self.tic_dict[tic_index].values()])
+            tic_max.append(cur_tic_min)
+
+        return tic_max
 
     def tic_data(self, tic_index):
         """
