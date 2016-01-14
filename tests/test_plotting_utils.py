@@ -37,7 +37,6 @@ def test_plotting_utils():
         lin_spaced_tic_dict = global_tic_boundaries([prt1, prt2],
                                                     range(prt1.n_tics_), n_bins)
 
-        print(lin_spaced_tic_dict.keys())
         def test_bounds():
             locally_calc={}
             for i in range(prt1.n_tics_):
@@ -66,15 +65,24 @@ def test_plotting_utils():
             assert(len(H_dict.keys()) == prt1.n_states_)
             assert(len(H_calc) == len(lin_spaced_tic_dict[0])-1)
             rnd_state = np.random.randint(0,prt1.n_states_)
-            print(H_dict[rnd_state])
             assert(np.allclose(H_dict[rnd_state], np.histogram(prt1.tic_dict[0][rnd_state],
                                                        bins = lin_spaced_tic_dict[0],
                                                        normed=True)[0]))
             return True
 
 
+        def test_one_dim_free_energy():
+            df = one_dim_free_energy(prj, prt1, 0, n_bins=None ,
+                        lin_spaced_tic=lin_spaced_tic_dict[0], errorbars=False)
+
+            assert((df.protein_name==prt1.name).all())
+            assert((df.mdl_index=="mle").all())
+
+            return True
+
         assert(test_bounds())
         assert(test_histogram_data())
+        assert(test_one_dim_free_energy())
 
 
         return
