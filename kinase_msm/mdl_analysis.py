@@ -41,10 +41,11 @@ class Protein(object):
             "%s/fixed_assignments.pkl" % self.protein_mdl_dir)
         self.n_states_ = self.msm.n_states_
         self.n_tics_ = self.kmeans_mdl.cluster_centers_.shape[1]
+        self._computed = False
+        self._tic_dict = None
+        self._tic_min = None
+        self._tic_max = None
 
-   # @property
-    # def tic_dict(self):
-    #     self._get_all_tics()
 
     @property
     def tic_dict(self):
@@ -52,47 +53,65 @@ class Protein(object):
         fill in all the tics at once in the tic dict which is useful
         :return:
         """
-        tic_dict = {}
-        for tic_index in range(self.n_tics_):
-            tic_dict[tic_index] = {}
-            for j in range(self.n_states_):
-                tic_dict[tic_index][j] = []
+        if self._computed:
+            return self._tic_dict
+        else:
+            tic_dict = {}
+            for tic_index in range(self.n_tics_):
+                tic_dict[tic_index] = {}
+                for j in range(self.n_states_):
+                    tic_dict[tic_index][j] = []
 
-        for traj_index, traj_name in enumerate(self.fixed_assignments.keys()):
-            # for all the fixed_state assignments
-            for f_i, fixed_state in enumerate(self.fixed_assignments[traj_name]):
-                    # go through and find the
-                try:
-                    for tic_index in range(self.n_tics_):
-                        tic_dict[tic_index][fixed_state].append(
-                        self.tica_data[traj_name][f_i][tic_index])
-                except:
-                    pass
-        return tic_dict
+            for traj_index, traj_name in enumerate(self.fixed_assignments.keys()):
+                # for all the fixed_state assignments
+                for f_i, fixed_state in enumerate(self.fixed_assignments[traj_name]):
+                        # go through and find the
+                    try:
+                        for tic_index in range(self.n_tics_):
+                            tic_dict[tic_index][fixed_state].append(
+                            self.tica_data[traj_name][f_i][tic_index])
+                    except:
+                        pass
+            self._tic_dict = tic_dict
+            self._computed = True
+            return tic_dict
 
-    @property
-    def tic_min(self):
+    def _get_tic_min(self):
         '''
         :return: contains a list of the minimum value along every tic coordinate
         '''
         tic_min = []
+
         for tic_index in range(self.n_tics_):
             cur_tic_min = min([min(i) for i in self.tic_dict[tic_index].values()])
             tic_min.append(cur_tic_min)
-
         return tic_min
 
-    @property
-    def tic_max(self):
-        '''
-        :return: contains a list of the maximum value along every tic coordinate
-        '''
+    def _get_tic_max(self):
+        """
+       :return: contains a list of the max value along every tic coordinate
+       """
         tic_max = []
         for tic_index in range(self.n_tics_):
             cur_tic_min = max([max(i) for i in self.tic_dict[tic_index].values()])
             tic_max.append(cur_tic_min)
 
         return tic_max
+
+    @property
+    def tic_min(self):
+        if self._tic_min is None:
+            self._tic_min= self._get_tic_min()
+        return self._tic_min
+
+    @property
+    def tic_max(self):
+        '''
+        :return: contains a list of the maximum value along every tic coordinate
+        '''
+        if self._tic_max is None:
+            self._tic_max= self._get_tic_max()
+        return self._tic_max
 
     def tic_data(self, tic_index):
         """
