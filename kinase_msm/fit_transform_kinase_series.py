@@ -6,7 +6,7 @@ from msmbuilder.utils import verboseload, verbosedump
 import glob
 from msmbuilder.msm import BayesianMarkovStateModel, MarkovStateModel
 import os
-from msmbuilder.cluster import MiniBatchKMeans
+from msmbuilder.cluster import KMeans
 from msmbuilder.dataset import _keynat as keynat
 from kinase_msm.data_loader import change_protein_data_dir, change_protein_mdl_dir, load_yaml_file
 
@@ -70,8 +70,7 @@ def fit_protein_kmeans(yaml_file):
     mdl_params = yaml_file["mdl_params"]
     cluster__n_clusters = mdl_params["cluster__n_clusters"]
 
-    kmeans_mdl = MiniBatchKMeans(cluster__n_clusters,
-                                 batch_size=max(10000, 10 * cluster__n_clusters))
+    kmeans_mdl = KMeans(cluster__n_clusters)
     data = []
 
     for protein in yaml_file["protein_list"]:
@@ -143,7 +142,7 @@ def fit_bayes_msms(yaml_file):
     for protein in yaml_file["protein_list"]:
         print(protein)
         change_protein_mdl_dir(yaml_file["base_dir"], protein)
-        assignments = verboseload("assignments.pkl")
+        assignments = verboseload("fixed_assignments.pkl")
         msm_mdl = BayesianMarkovStateModel(n_samples=bayesmsm__n_samples,
                                            n_steps=bayesmsm__n_steps,
                                            lag_time=msm__lag_time, verbose=True).fit(
