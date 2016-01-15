@@ -1,6 +1,6 @@
 #!/bin/env python
 import os
-from kinase_msm.mdl_analysis import Project, Protein
+from kinase_msm.mdl_analysis import ProteinSeries, Protein
 from kinase_msm.fit_transform_kinase_series import fit_pipeline
 from kinase_msm.series_setup import setup_series_analysis
 from msmbuilder.decomposition import tICA
@@ -33,9 +33,9 @@ def test_project():
                                   project_dict, mdl_params)
         fit_pipeline(base_dir)
 
-        prj = Project(os.path.join(mdl_dir,"project.yaml"))
+        prj = ProteinSeries(os.path.join(mdl_dir,"project.yaml"))
 
-        assert isinstance(prj, Project)
+        assert isinstance(prj, ProteinSeries)
         assert isinstance(prj.tica_mdl ,tICA)
 
         assert _test_protein_without_project()
