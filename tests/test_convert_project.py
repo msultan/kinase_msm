@@ -78,7 +78,7 @@ def test_convert_project():
         assert test_hdf5("kinase_1", "fake_proj2", 0, 0)
 
         extract_project_wrapper(yaml_file, "kinase_2", "fake_proj3", pool)
-        assert test_hdf5("kinase_1", "fake_proj3", 0, 0)
+        assert test_hdf5("kinase_2", "fake_proj3", 0, 0)
 
 
     return True
