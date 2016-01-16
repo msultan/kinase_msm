@@ -1,0 +1,44 @@
+*********************** Log Started 2014-12-24T09:03:07Z ***********************
+Project: 9104 (Run 0, Clone 1, Gen 2)
+Unit: 0x000000020a3b1e78546a5860f4a7399c
+CPU: 0x00000000000000000000000000000000
+Machine: 2
+Digital signatures verified
+Folding@home GPU core18
+Version 0.0.3
+  Found a checkpoint file
+Completed 1700000 out of 2500000 steps (68%)
+Temperature control disabled. Requirements: single Nvidia GPU, tmax must be < 110 and twait >= 900
+Completed 1725000 out of 2500000 steps (69%)
+Completed 1750000 out of 2500000 steps (70%)
+Completed 1775000 out of 2500000 steps (71%)
+Completed 1800000 out of 2500000 steps (72%)
+Completed 1825000 out of 2500000 steps (73%)
+Completed 1850000 out of 2500000 steps (74%)
+Completed 1875000 out of 2500000 steps (75%)
+Completed 1900000 out of 2500000 steps (76%)
+Completed 1925000 out of 2500000 steps (77%)
+Completed 1950000 out of 2500000 steps (78%)
+Completed 1975000 out of 2500000 steps (79%)
+Completed 2000000 out of 2500000 steps (80%)
+Completed 2025000 out of 2500000 steps (81%)
+Completed 2050000 out of 2500000 steps (82%)
+Completed 2075000 out of 2500000 steps (83%)
+Completed 2100000 out of 2500000 steps (84%)
+Completed 2125000 out of 2500000 steps (85%)
+Completed 2150000 out of 2500000 steps (86%)
+Completed 2175000 out of 2500000 steps (87%)
+Completed 2200000 out of 2500000 steps (88%)
+Completed 2225000 out of 2500000 steps (89%)
+Completed 2250000 out of 2500000 steps (90%)
+Completed 2275000 out of 2500000 steps (91%)
+Completed 2300000 out of 2500000 steps (92%)
+Completed 2325000 out of 2500000 steps (93%)
+Completed 2350000 out of 2500000 steps (94%)
+Completed 2375000 out of 2500000 steps (95%)
+Completed 2400000 out of 2500000 steps (96%)
+Completed 2425000 out of 2500000 steps (97%)
+Completed 2450000 out of 2500000 steps (98%)
+Completed 2475000 out of 2500000 steps (99%)
+Completed 2500000 out of 2500000 steps (100%)
+Saving result file logfile_01.txt
