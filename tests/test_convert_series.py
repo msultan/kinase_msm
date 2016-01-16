@@ -28,10 +28,6 @@ def _setup_test():
 
 def _cleanup_test():
     shutil.rmtree(os.path.join(base_dir,"mdl_dir"))
-    shutil.rmtree(os.path.join(base_dir,"kinase_1","trajectories"))
-    shutil.rmtree(os.path.join(base_dir,"kinase_2","trajectories"))
-    shutil.rmtree(os.path.join(base_dir,"kinase_1","protein_traj"))
-    shutil.rmtree(os.path.join(base_dir,"kinase_2","protein_traj"))
     return
 
 @with_setup(_setup_test,_cleanup_test)
