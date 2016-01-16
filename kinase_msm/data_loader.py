@@ -71,7 +71,10 @@ def _sanity_test(base_dir, protein, msm_mdl, tica_data, kmeans_mdl, assignments)
 
 
 def load_yaml_file(yaml_file):
-    return yaml.load(open(yaml_file, 'r'))
+    if isinstance(yaml_file, dict):
+        return yaml_file
+    else:
+        return yaml.load(open(yaml_file, 'r'))
 
 
 def load_current_protein_model(yaml_file, protein, sanity=True):

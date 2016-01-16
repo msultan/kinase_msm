@@ -5,7 +5,7 @@ from msmbuilder.utils import verboseload, verbosedump
 from kinase_msm.data_loader import load_yaml_file
 
 
-class Project(object):
+class ProteinSeries(object):
 
     def __init__(self, yaml_file):
         self.yaml_file = load_yaml_file(yaml_file)
@@ -23,7 +23,7 @@ class Protein(object):
     """
 
     def __init__(self, series, name):
-        if not isinstance(series, Project):
+        if not isinstance(series, ProteinSeries):
             raise Exception("We need a project series to be associated "
                             "with this kinase")
         self.name = name

@@ -2,7 +2,7 @@ from test_pipeline import create_fake_data
 from kinase_msm.series_setup import setup_series_analysis
 from kinase_msm.plotting_utils import *
 from kinase_msm.fit_transform_kinase_series import fit_pipeline
-from kinase_msm.mdl_analysis import Protein,Project
+from kinase_msm.mdl_analysis import Protein,ProteinSeries
 from mdtraj.utils.contextmanagers import enter_temp_directory
 import os
 
@@ -27,7 +27,7 @@ def test_plotting_utils():
                                       project_dict, mdl_params)
 
         fit_pipeline(base_dir)
-        prj = Project(os.path.join(mdl_dir,"project.yaml"))
+        prj = ProteinSeries(os.path.join(mdl_dir,"project.yaml"))
 
         prt1 = Protein(prj, "kinase_1")
         prt2 = Protein(prj, "kinase_2")

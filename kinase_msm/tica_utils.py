@@ -2,7 +2,7 @@
 from kinase_msm.data_loader import load_yaml_file
 import numpy as np
 import os
-from kinase_msm.mdl_analysis import Project, Protein
+from kinase_msm.mdl_analysis import ProteinSeries, Protein
 from kinase_msm.data_loader import load_frame
 from kinase_msm.data_transformer import create_assignment_matrix, create_tics_array
 
@@ -98,7 +98,7 @@ def sample_one_tic(yaml_file,protein_name,tic_index,n_frames, scheme="linear"):
     :return: Dumps a tic%d.xtc and tic%d.log for a given
     protein inside its model.
     """
-    prj = Project(yaml_file)
+    prj = ProteinSeries(yaml_file)
     prt = Protein(prj, protein_name)
 
     key_mapping, assignment_matrix  = create_assignment_matrix(prt.fixed_assignments)
