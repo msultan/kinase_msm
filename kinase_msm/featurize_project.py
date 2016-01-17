@@ -32,7 +32,7 @@ def featurize_file(job_tuple):
     features = feat.partial_transform(trj)
     verbosedump(features, output_fname)
 
-    if not os.path.isfile(feat_descriptor):
+    if not os.path.isfile(feat_descriptor) and hasattr(feat, "describe_features"):
         dih_df = pd.DataFrame(feat.describe_features(trj[0]))
         verbosedump(dih_df, feat_descriptor)
 
