@@ -11,6 +11,11 @@ else:
     base_dir = os.path.abspath(os.path.join("./test_data"))
 
 def _setup_test():
+    #remove previous mdl_dir
+    try:
+        shutil.rmtree(os.path.join(base_dir,"mdl_dir"))
+    except:
+        pass
     setup_series_analysis(base_dir =base_dir,
                           mdl_dir = os.path.abspath(os.path.join(base_dir,"mdl_dir")),
                           feature_dir = "features",
@@ -27,7 +32,6 @@ def _setup_test():
                          )
 
 def _cleanup_test():
-    shutil.rmtree(os.path.join(base_dir,"mdl_dir"))
     return
 
 @with_setup(_setup_test,_cleanup_test)

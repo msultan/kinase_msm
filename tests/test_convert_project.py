@@ -70,6 +70,7 @@ def test_convert_project():
 
 
     for i in range(3):
+        #extract the project multiple times to see what happens
         extract_project_wrapper(yaml_file, "kinase_1", "fake_proj1", pool)
         extract_project_wrapper(yaml_file, "kinase_1", "fake_proj2", pool)
 
@@ -77,6 +78,7 @@ def test_convert_project():
         assert test_hdf5("kinase_1", "fake_proj1", 1, 0)
         assert test_hdf5("kinase_1", "fake_proj2", 0, 0)
 
+        #do it for the second project too.
         extract_project_wrapper(yaml_file, "kinase_2", "fake_proj3", pool)
         assert test_hdf5("kinase_2", "fake_proj3", 0, 0)
 
