@@ -1,6 +1,5 @@
 #!/bin/env python
-import os
-from kinase_msm.convert_project import extract_project_wrapper, _sanity_tests
+from kinase_msm.featurize_project import featurize_project_wrapper
 from kinase_msm.data_loader import load_yaml_file
 
 def convert_series(yaml_file, ip_view, protein_list = None):
@@ -22,14 +21,5 @@ def convert_series(yaml_file, ip_view, protein_list = None):
 
     for protein in protein_list:
         for proj in yaml_file["project_dict"][protein]:
-
-            protein_folder = os.path.join(yaml_file["base_dir"], protein)
-            proj_folder = os.path.join(protein_folder, proj)
-            top_folder = os.path.join(proj_folder,"topologies")
-
-            _sanity_tests(protein_folder, proj_folder, top_folder)
-
-            extract_project_wrapper(yaml_file, protein,
-                                    proj, ip_view)
-
+            featurize_project_wrapper(yaml_file, protein,proj, None, 1, ip_view)
     return

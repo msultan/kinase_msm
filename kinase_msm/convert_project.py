@@ -51,6 +51,7 @@ class HDF5TrajectoryFileWrapper():
                  root.processed_filenames.append([filename])
         return
 
+
 def _sanity_tests(protein_folder, proj_folder, top_folder):
     """
     :param proj_folder: The project folder for a protein
@@ -70,6 +71,7 @@ def _sanity_tests(protein_folder, proj_folder, top_folder):
 
     return
 
+
 def _traj_loader(filename, top):
     if os.path.isdir(filename):
         return md.load("%s/positions.xtc"%filename, top=top)
@@ -80,6 +82,7 @@ def _traj_loader(filename, top):
     else:
         raise Exception("%s is neither a folder nor a tar.bz2 file")
     return
+
 
 def hdf5_concatenate(job_tuple):
     """Concatenate tar bzipped or nonbized XTC files created by Folding@Home .
@@ -142,6 +145,7 @@ def hdf5_concatenate(job_tuple):
                     str_trj_file_wrapper.write_file(filename, trj)
 
     return
+
 
 def extract_project_wrapper(yaml_file, protein, proj, view):
 
