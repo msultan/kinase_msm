@@ -67,7 +67,17 @@ def test_convert_project():
 
         return True
 
+    def test_stripped_hdf5(protein, p, r, clone):
+        trj, stripped_trj = _load_project_clone(protein, p, r, clone)
+        trj3 = mdt.load(os.path.join(base_dir, protein,"protein_traj/%s_%d_0.hdf5"%(p,r)))
 
+
+        for i in ["top", "n_atoms", "n_chains", "n_frames", "n_residues"]:
+            assert getattr(stripped_trj, i) == getattr(trj3,i)
+
+        assert (stripped_trj.xyz==trj3.xyz).all()
+
+        return True
 
     for i in range(3):
         #extract the project multiple times to see what happens
@@ -79,8 +89,9 @@ def test_convert_project():
         assert test_hdf5("kinase_1", "fake_proj2", 0, 0)
 
         #do it for the second project too.
-        extract_project_wrapper(yaml_file, "kinase_2", "fake_proj3", pool)
-        assert test_hdf5("kinase_2", "fake_proj3", 0, 0)
+        extract_project_wrapper(yaml_file, "kinase_2", "fake_proj3", pool,
+                protein_only=True)
+        assert test_stripped_hdf5("kinase_2", "fake_proj3", 0, 0)
 
 
     return True

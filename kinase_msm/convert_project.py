@@ -100,16 +100,27 @@ def hdf5_concatenate(job_tuple):
     with which files have already been processed.
     """
 
-    proj, protein_folder, proj_folder, top_folder, run, clone = job_tuple
+    proj, protein_folder, proj_folder, top_folder, run, clone, protein_only = job_tuple
+
     path = os.path.join(proj_folder,"RUN%d/CLONE%d/"%(run,clone))
     top = md.load(os.path.join(top_folder,"%d.pdb"%run))
     str_top = top.remove_solvent()
-    #output path for full trajectory
-    output_filename =  os.path.join(protein_folder,
-                                    "trajectories/%s_%d_%d.hdf5"%(proj,run,clone))
+
+
     #output path for stripped trajectory
     strip_prot_out_filename = os.path.join(protein_folder,
                                            "protein_traj/%s_%d_%d.hdf5"%(proj,run,clone))
+    str_trj_file = HDF5TrajectoryFile(strip_prot_out_filename, mode='a')
+    str_trj_file_wrapper = HDF5TrajectoryFileWrapper(str_trj_file)
+    str_trj_file_wrapper.setup(str_top.topology)
+
+    if not protein_only:
+        #output path for full trajectory
+        output_filename =  os.path.join(protein_folder,
+                                    "trajectories/%s_%d_%d.hdf5"%(proj,run,clone))
+        trj_file = HDF5TrajectoryFile(output_filename, mode='a')
+        trj_file_wrapper = HDF5TrajectoryFileWrapper(trj_file)
+        trj_file_wrapper.setup(top.topology)
 
     glob_input = os.path.join(path, "results*")
     filenames = sorted(glob.glob(glob_input), key=keynat)
@@ -117,25 +128,16 @@ def hdf5_concatenate(job_tuple):
     if len(filenames) <= 0:
         return
 
-    trj_file = HDF5TrajectoryFile(output_filename, mode='a')
-    str_trj_file = HDF5TrajectoryFile(strip_prot_out_filename, mode='a')
-
-    trj_file_wrapper = HDF5TrajectoryFileWrapper(trj_file)
-    trj_file_wrapper.setup(top.topology)
-
-    str_trj_file_wrapper = HDF5TrajectoryFileWrapper(str_trj_file)
-    str_trj_file_wrapper.setup(str_top.topology)
-
     for index, filename in enumerate(filenames):
         #if we find it in both then no problem we can continue to the next filename
-        if trj_file_wrapper.check_filename(filename) and \
+        if (not protein_only and trj_file_wrapper.check_filename(filename)) and \
                 str_trj_file_wrapper.check_filename(filename):
             print("Already processed %s" % filename)
             continue
         with enter_temp_directory():
             print("Processing %s" % filename)
             trj = _traj_loader(filename,top)
-            if not trj_file_wrapper.check_filename(filename):
+            if not protein_only and not trj_file_wrapper.check_filename(filename) :
                 if trj_file_wrapper.validate_filename(index, filename, filenames):
                     trj_file_wrapper.write_file(filename, trj)
             #now the stripped file
@@ -147,7 +149,8 @@ def hdf5_concatenate(job_tuple):
     return
 
 
-def extract_project_wrapper(yaml_file, protein, proj, view):
+def extract_project_wrapper(yaml_file, protein, proj,
+                            view, protein_only = False,):
 
     yaml_file = load_yaml_file(yaml_file)
     base_dir = yaml_file["base_dir"]
@@ -166,7 +169,7 @@ def extract_project_wrapper(yaml_file, protein, proj, view):
 
     print("Found %d runs and %d clones in %s"%(runs,clones,proj_folder))
 
-    jobs = [(proj, protein_folder, proj_folder, top_folder, run, clone)
+    jobs = [(proj, protein_folder, proj_folder, top_folder, run, clone, protein_only)
             for run in range(runs)
             for clone in range(clones)]
     result = view.map(hdf5_concatenate,jobs)
