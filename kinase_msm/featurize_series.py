@@ -2,7 +2,7 @@
 from kinase_msm.featurize_project import featurize_project_wrapper
 from kinase_msm.data_loader import load_yaml_file
 
-def convert_series(yaml_file, ip_view, protein_list = None):
+def featurize_series(yaml_file, ip_view, protein_list = None):
     """
     :param yaml_file: The yaml file to work with
     :param ip_view: ipython view(required)
