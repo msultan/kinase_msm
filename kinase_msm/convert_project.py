@@ -141,7 +141,7 @@ def hdf5_concatenate(job_tuple):
                 if trj_file_wrapper.validate_filename(index, filename, filenames):
                     trj_file_wrapper.write_file(filename, trj)
             #now the stripped file
-            if protein_only and not str_trj_file_wrapper.check_filename(filename):
+            if not str_trj_file_wrapper.check_filename(filename):
                 if str_trj_file_wrapper.validate_filename(index, filename, filenames):
                     trj = trj.remove_solvent()
                     str_trj_file_wrapper.write_file(filename, trj)
