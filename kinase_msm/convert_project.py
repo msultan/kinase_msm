@@ -107,6 +107,12 @@ def hdf5_concatenate(job_tuple):
     str_top = top.remove_solvent()
 
 
+    glob_input = os.path.join(path, "results*")
+    filenames = sorted(glob.glob(glob_input), key=keynat)
+
+    if len(filenames) <= 0:
+        return
+
     #output path for stripped trajectory
     strip_prot_out_filename = os.path.join(protein_folder,
                                            "protein_traj/%s_%d_%d.hdf5"%(proj,run,clone))
@@ -122,11 +128,6 @@ def hdf5_concatenate(job_tuple):
         trj_file_wrapper = HDF5TrajectoryFileWrapper(trj_file)
         trj_file_wrapper.setup(top.topology)
 
-    glob_input = os.path.join(path, "results*")
-    filenames = sorted(glob.glob(glob_input), key=keynat)
-
-    if len(filenames) <= 0:
-        return
 
     for index, filename in enumerate(filenames):
         #if we find it in both then no problem we can continue to the next filename
