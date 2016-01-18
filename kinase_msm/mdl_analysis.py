@@ -11,7 +11,7 @@ class ProteinSeries(object):
         self.yaml_file = load_yaml_file(yaml_file)
         self.base_dir = self.yaml_file["base_dir"]
         self.mdl_dir = self.yaml_file["mdl_dir"]
-        self.relative_loc = os.path.split(self.mdl_dir)[0]
+        self.relative_loc = os.path.relpath(self.mdl_dir)
         self.kmeans_mdl = verboseload(
             os.path.join(self.relative_loc, "kmeans_mdl.pkl"))
         self.tica_mdl = verboseload(os.path.join(self.relative_loc, "tica_mdl.pkl"))
