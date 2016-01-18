@@ -7,11 +7,15 @@ from kinase_msm.data_loader import load_yaml_file
 
 class ProteinSeries(object):
 
-    def __init__(self, yaml_file):
+    def __init__(self, yaml_file, relative_loc="../"):
         self.yaml_file = load_yaml_file(yaml_file)
         self.base_dir = self.yaml_file["base_dir"]
         self.mdl_dir = self.yaml_file["mdl_dir"]
-        self.relative_loc = os.path.relpath(self.mdl_dir)
+        if relative_loc is None:
+            self.relative_loc = os.path.relpath(self.mdl_dir)
+        else:
+            self.relative_loc = os.path.join(relative_loc,
+                                             os.path.split(self.mdl_dir)[1])
         self.kmeans_mdl = verboseload(
             os.path.join(self.relative_loc, "kmeans_mdl.pkl"))
         self.tica_mdl = verboseload(os.path.join(self.relative_loc, "tica_mdl.pkl"))
