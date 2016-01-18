@@ -130,14 +130,14 @@ def hdf5_concatenate(job_tuple):
 
     for index, filename in enumerate(filenames):
         #if we find it in both then no problem we can continue to the next filename
-        if trj_file_wrapper.check_filename(filename) and \
+        if ((not protein_only) and trj_file_wrapper.check_filename(filename)) and \
                 str_trj_file_wrapper.check_filename(filename):
             print("Already processed %s" % filename)
             continue
         with enter_temp_directory():
             print("Processing %s" % filename)
             trj = _traj_loader(filename,top)
-            if not protein_only and not trj_file_wrapper.check_filename(filename) :
+            if (not protein_only) and (not trj_file_wrapper.check_filename(filename)):
                 if trj_file_wrapper.validate_filename(index, filename, filenames):
                     trj_file_wrapper.write_file(filename, trj)
             #now the stripped file
