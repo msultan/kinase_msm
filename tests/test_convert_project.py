@@ -49,7 +49,7 @@ def _load_project_clone(protein, project, run, clone):
 def test_convert_project():
 
     print(base_dir)
-    pool = Pool(2)
+    pool = Pool(6)
     yaml_file = load_yaml_file(os.path.join(base_dir,"mdl_dir","project.yaml"))
 
     def test_hdf5(protein, p, r, clone):
@@ -84,13 +84,15 @@ def test_convert_project():
         """
         Kinase1/RUN1/CLONE0 has a missing file results-001.tar.bz2. We
         make sure that that hdf5 has the first results-000.tar.bz2
-        but not 002
+        but not 002. This is a hardcoded test that is not really desirable
         """
-        trj = HDF5TrajectoryFile(os.path.join(base_dir,"kinase1",
+        trj = HDF5TrajectoryFile(os.path.join(base_dir,"kinase_1",
                                               "trajectories","fake_proj1_1_0.hdf5"))
-        flist=trj._self.file._handle.root.processed_filenames
-        return six.b(os.path.abspath("results-000.tar.bz2")) in flist and \
-               six.b(os.path.abspath("results-002.tar.bz2")) not in flist
+        flist=trj._handle.root.processed_filenames
+        fpath, fname =  os.path.split(flist[0])
+
+        return os.path.join(fpath,six.b("results-000.tar.bz2")) in flist and \
+               os.path.join(fpath,six.b("results-002.tar.bz2")) not in flist
 
 
     for i in range(3):
