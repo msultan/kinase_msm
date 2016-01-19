@@ -38,6 +38,7 @@ def test_setup_series_analysis():
         for protein in protein_list:
             assert os.path.isdir(os.path.join(mdl_dir, protein))
 
+        assert(os.path.isfile(os.path.join(base_dir,"series.yaml")))
         fin = open(os.path.join(mdl_dir,"project.yaml"), 'r')
         yaml_file = yaml.load(fin)
 

@@ -46,17 +46,15 @@ def setup_series_analysis(base_dir, mdl_dir, feature_dir, series_name, protein_l
                                 % (project, protein))
 
 
-    yml_file =  yaml_template.format(base_dir=base_dir,
+    with open(os.path.join(base_dir,"series.yaml"),'w') as yaml_out:
+        yaml_file = yaml.load(yaml_template.format(base_dir=base_dir,
                                                    mdl_dir=mdl_dir,
                                                    feature_dir=feature_dir,
                                                    series_name=series_name,
                                                    protein_list=protein_list,
                                                    project_dict=project_dict,
                                                    mdl_params=None
-                                                   )
-    
-    with open(os.path.join(base_dir,"series.yaml"),'w') as yaml_out:
-        yaml_file = yaml.load(yml_file)
+                                                   ))
         yaml_out.write(yaml.dump(yaml_file))
 
     if mdl_params is not None:
@@ -72,7 +70,7 @@ def setup_series_analysis(base_dir, mdl_dir, feature_dir, series_name, protein_l
             os.mkdir(os.path.join(mdl_dir, protein))
 
         with open(os.path.join(mdl_dir, 'project.yaml'), 'w') as yaml_out:
-            yaml_file = yaml.load(yml_file)
+            yaml_file["mdl_params"]=mdl_params
             yaml_out.write(yaml.dump(yaml_file))
 
     return yaml_file
