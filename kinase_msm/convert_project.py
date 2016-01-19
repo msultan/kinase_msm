@@ -31,7 +31,16 @@ class HDF5TrajectoryFileWrapper():
         return
 
     def validate_filename(self, index, filename, filenames):
-        return True
+        """
+        :param index: Index of the file we are working on
+        :param filename: The filename
+        :param filenames: List of filenames
+        :return: True if the index-1 file is in the \
+        processed_filenames. This is to ensure trajectory
+        continuity.
+        """
+        return six.b(filenames[index-1]) in \
+               self.file._handle.root.processed_filenames
 
     def check_filename(self,filename):
         """

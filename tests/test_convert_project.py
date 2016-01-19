@@ -1,16 +1,17 @@
 #!/bin/env/python
 
-from kinase_msm.series_setup import setup_series_analysis
 from kinase_msm.convert_project import extract_project_wrapper
 from kinase_msm.data_loader import load_yaml_file
 from multiprocessing.pool import Pool
 from test_convert_series import _setup_test, _cleanup_test
 from nose.tools import with_setup
 from mdtraj.utils.contextmanagers import enter_temp_directory
+from mdtraj.formats.hdf5 import HDF5TrajectoryFile
 import mdtraj as mdt
 from msmbuilder.dataset import _keynat as keynat
 import glob
 import os
+import six
 
 if os.path.isdir("tests"):
     base_dir = os.path.abspath(os.path.join("./tests/test_data"))
@@ -79,13 +80,28 @@ def test_convert_project():
 
         return True
 
+    def test_hdf5_file_validation():
+        """
+        Kinase1/RUN1/CLONE0 has a missing file results-001.tar.bz2. We
+        make sure that that hdf5 has the first results-000.tar.bz2
+        but not 002
+        """
+        trj = HDF5TrajectoryFile(os.path.join(base_dir,"kinase1",
+                                              "trajectories","fake_proj1_1_0.hdf5"))
+        flist=trj._self.file._handle.root.processed_filenames
+        return six.b(os.path.abspath("results-000.tar.bz2")) in flist and \
+               six.b(os.path.abspath("results-002.tar.bz2")) not in flist
+
+
     for i in range(3):
         #extract the project multiple times to see what happens
         extract_project_wrapper(yaml_file, "kinase_1", "fake_proj1", pool)
         extract_project_wrapper(yaml_file, "kinase_1", "fake_proj2", pool)
 
-        assert test_hdf5("kinase_1", "fake_proj1", 1, 0)
-        assert test_hdf5("kinase_1", "fake_proj1", 1, 0)
+        assert test_hdf5("kinase_1", "fake_proj1", 0, 0)
+
+        assert test_hdf5_file_validation()
+
         assert test_hdf5("kinase_1", "fake_proj2", 0, 0)
 
         #do it for the second project too.
