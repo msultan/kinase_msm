@@ -29,8 +29,8 @@ def change_protein_mdl_dir(mdl_dir, protein):
     :return: Nothing but the cwd should be the protein mdl dir
     base_dir/mdl_dir/protein
     """
-    if os.getcwd() != os.path.join(base_dir, protein):
-        os.chdir(os.path.join(base_dir, protein))
+    if os.getcwd() != os.path.join(mdl_dir, protein):
+        os.chdir(os.path.join(mdl_dir, protein))
     return
 
 
