@@ -151,7 +151,7 @@ def sample_tic_region(yaml_file, protein_name, tic_region,
 
     fake_coordinate = np.zeros(prt.n_tics_)
 
-    for i in range(prt.n_tics_):
+    for i in tic_region.keys():
         fake_coordinate[i] = tic_region[i]
 
     key_list = list(prt.tica_data.keys())
