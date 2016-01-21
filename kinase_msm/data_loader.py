@@ -3,35 +3,30 @@ from msmbuilder.utils import verboseload, verbosedump
 import mdtraj as mdt
 import numpy as np
 import yaml
-
+import contextlib
 '''
 script to load pertinent data for a given protein
 and perform some sanity checks
 '''
 
-
-def change_protein_data_dir(base_dir, protein):
-    """
-    :param base_dir: The base directory for the project
-    :param protein: The protein within the project
-    :return: Nothing but the cwd should be the protein data dir
-    i.e base_dir/protein
-    """
-    if os.getcwd() != os.path.join(base_dir, protein):
-        os.chdir(os.path.join(base_dir, protein))
-    return
+@contextlib.contextmanager
+def enter_protein_data_dir(yaml_file, protein):
+    """Enters the protein's data directory"""
+    cwd = os.getcwd()
+    os.chdir(os.path.join(yaml_file["base_dir"], protein))
+    yield
+    os.chdir(cwd)
 
 
-def change_protein_mdl_dir(mdl_dir, protein):
-    """
-    :param base_dir: The base directory for the project
-    :param protein: The protein within the project
-    :return: Nothing but the cwd should be the protein mdl dir
-    base_dir/mdl_dir/protein
-    """
-    if os.getcwd() != os.path.join(mdl_dir, protein):
-        os.chdir(os.path.join(mdl_dir, protein))
-    return
+
+@contextlib.contextmanager
+def enter_protein_mdl_dir(yaml_file, protein):
+    """Enters the protein's data directory"""
+    cwd = os.getcwd()
+    os.chdir(os.path.join(yaml_file["mdl_dir"], protein))
+    yield
+    os.chdir(cwd)
+
 
 
 def load_traj(base_dir, protein, filename):
@@ -41,7 +36,7 @@ def load_traj(base_dir, protein, filename):
     :param filename: file to load
     :return: the trajectory obj
     """
-    change_protein_data_dir(base_dir, protein)
+    os.chdir(os.path.join(base_dir, protein))
     filename = os.path.splitext(filename)[0]
     return mdt.load("./protein_traj/%s.hdf5" % filename)
 
