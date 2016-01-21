@@ -18,7 +18,6 @@ def enter_protein_data_dir(yaml_file, protein):
     os.chdir(cwd)
 
 
-
 @contextlib.contextmanager
 def enter_protein_mdl_dir(yaml_file, protein):
     """Enters the protein's data directory"""
