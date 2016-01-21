@@ -52,6 +52,7 @@ def _test_sample_region(yaml_file, protein_name, tic_region,
     return True
 
 def test_tica_utils():
+    np.random.seed(42)
     yaml_file = os.path.join(base_dir,"mdl_dir","project.yaml")
     yaml_file = load_yaml_file(yaml_file)
     fit_pipeline(yaml_file["base_dir"])
