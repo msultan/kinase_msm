@@ -27,6 +27,10 @@ def global_tic_boundaries(prt_list, tic_list, n_bins=100):
 
 def histogram_data(prj, prt, tic_list, x_array=None, y_array=None, n_bins=100):
 
+    #simple check for making sure we have a list
+    if not isinstance(tic_list, list):
+        tic_list = [tic_list]
+
     c_x = prt.tic_dict[tic_list[0]]
 
     if x_array is None:

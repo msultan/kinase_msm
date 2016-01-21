@@ -59,7 +59,7 @@ def transform_protein_tica(yaml_file):
                     protein_tica_mdl.partial_transform(featurized_path)
             except:
                 pass
-        change_protein_mdl_dir(yaml_file["base_dir"], protein)
+        change_protein_mdl_dir(mdl_dir, protein)
         verbosedump(tica_data, 'tica_data.pkl')
         print("Done transforming protein %s" % protein)
     return
@@ -74,7 +74,7 @@ def fit_protein_kmeans(yaml_file):
     data = []
 
     for protein in yaml_file["protein_list"]:
-        change_protein_mdl_dir(yaml_file["base_dir"], protein)
+        change_protein_mdl_dir(mdl_dir, protein)
         tica_data = verboseload("tica_data.pkl")
         # get all traj
         sorted_list = sorted(tica_data.keys(), key=keynat)
@@ -96,7 +96,7 @@ def transform_protein_kmeans(yaml_file):
     kmeans_mdl = verboseload(kmeans_mdl_path)
     for protein in yaml_file["protein_list"]:
         print("Assigning protein %s" % protein)
-        change_protein_mdl_dir(yaml_file["base_dir"], protein)
+        change_protein_mdl_dir(mdl_dir, protein)
         tica_data = verboseload("tica_data.pkl")
         # do assignments
         assignments = {}
@@ -141,7 +141,7 @@ def fit_bayes_msms(yaml_file):
 
     for protein in yaml_file["protein_list"]:
         print(protein)
-        change_protein_mdl_dir(yaml_file["base_dir"], protein)
+        change_protein_mdl_dir(yaml_file["mdl_dir"], protein)
         assignments = verboseload("fixed_assignments.pkl")
         msm_mdl = BayesianMarkovStateModel(n_samples=bayesmsm__n_samples,
                                            n_steps=bayesmsm__n_steps,

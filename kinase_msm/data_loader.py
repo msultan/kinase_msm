@@ -22,15 +22,15 @@ def change_protein_data_dir(base_dir, protein):
     return
 
 
-def change_protein_mdl_dir(base_dir, protein):
+def change_protein_mdl_dir(mdl_dir, protein):
     """
     :param base_dir: The base directory for the project
     :param protein: The protein within the project
     :return: Nothing but the cwd should be the protein mdl dir
     base_dir/mdl_dir/protein
     """
-    if os.getcwd() != os.path.join(base_dir, "mdl_dir", protein):
-        os.chdir(os.path.join(base_dir, "mdl_dir", protein))
+    if os.getcwd() != os.path.join(base_dir, protein):
+        os.chdir(os.path.join(base_dir, protein))
     return
 
 
