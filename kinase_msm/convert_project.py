@@ -31,7 +31,29 @@ class HDF5TrajectoryFileWrapper():
         return
 
     def validate_filename(self, index, filename, filenames):
-        return True
+        """
+        :param index: Index of the file we are working on
+        :param filename: The filename
+        :param filenames: List of filenames
+        :return: True if the index-1 file is in the \
+        processed_filenames. This is to ensure trajectory
+        continuity.
+        """
+        if index==0:
+            return True
+        else:
+            f_path, fname = os.path.split(filename)
+            exp1 = os.path.join(f_path,"results-%.3d.tar.bz2"%(index))
+            exp2 = os.path.join(f_path,"results%d"%(index))
+
+            exp1_min_1 = os.path.join(f_path,"results-%.3d.tar.bz2"%(index-1))
+            exp2_min_1 = os.path.join(f_path,"results%d"%(index-1))
+            return ((six.b(exp1_min_1) in
+                     self.file._handle.root.processed_filenames and
+                     exp1==filename) or
+                    (six.b(exp2_min_1) in
+                   self.file._handle.root.processed_filenames) and
+                    exp2==filename)
 
     def check_filename(self,filename):
         """
@@ -131,7 +153,7 @@ def hdf5_concatenate(job_tuple):
 
     for index, filename in enumerate(filenames):
         #if we find it in both then no problem we can continue to the next filename
-        if ((not protein_only) and trj_file_wrapper.check_filename(filename)) and \
+        if ( protein_only or trj_file_wrapper.check_filename(filename)) and \
                 str_trj_file_wrapper.check_filename(filename):
             print("Already processed %s" % filename)
             continue

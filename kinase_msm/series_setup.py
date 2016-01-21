@@ -19,7 +19,7 @@ mdl_params : {mdl_params}
 
 
 def setup_series_analysis(base_dir, mdl_dir, feature_dir, series_name, protein_list,
-                          project_dict, mdl_params):
+                          project_dict, mdl_params=None):
     """
     :param base_dir: Directory where all the data is found
     :param series_name: Series name for the set of kinases
@@ -45,25 +45,32 @@ def setup_series_analysis(base_dir, mdl_dir, feature_dir, series_name, protein_l
                 raise Exception("Project %s for protein %s doesn't exist"
                                 % (project, protein))
 
-    if os.path.isdir(mdl_dir):
-        ctime = str(int(time.time()))
-        shutil.move(mdl_dir, mdl_dir + ctime)
-        warnings.warn("Moved Previous mdl dir to %s%s" % (mdl_dir, ctime))
-    else:
-        pass
 
-    os.mkdir(mdl_dir)
-    for protein in protein_list:
-        os.mkdir(os.path.join(mdl_dir, protein))
-
-    with open(os.path.join(mdl_dir, 'project.yaml'), 'w') as yaml_out:
+    with open(os.path.join(base_dir,"series.yaml"),'w') as yaml_out:
         yaml_file = yaml.load(yaml_template.format(base_dir=base_dir,
                                                    mdl_dir=mdl_dir,
                                                    feature_dir=feature_dir,
                                                    series_name=series_name,
                                                    protein_list=protein_list,
                                                    project_dict=project_dict,
-                                                   mdl_params=mdl_params))
+                                                   mdl_params=None
+                                                   ))
         yaml_out.write(yaml.dump(yaml_file))
+
+    if mdl_params is not None:
+        if os.path.isdir(mdl_dir):
+            ctime = str(int(time.time()))
+            shutil.move(mdl_dir, mdl_dir + ctime)
+            warnings.warn("Moved Previous mdl dir to %s%s" % (mdl_dir, ctime))
+        else:
+            pass
+
+        os.mkdir(mdl_dir)
+        for protein in protein_list:
+            os.mkdir(os.path.join(mdl_dir, protein))
+
+        with open(os.path.join(mdl_dir, 'project.yaml'), 'w') as yaml_out:
+            yaml_file["mdl_params"]=mdl_params
+            yaml_out.write(yaml.dump(yaml_file))
 
     return yaml_file

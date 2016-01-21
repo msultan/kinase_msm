@@ -1,8 +1,6 @@
 #!/bin/env python
 
 from __future__ import print_function
-import os
-import glob
 import numpy as np
 from msmbuilder.utils import verbosedump
 from kinase_msm.series_setup import setup_series_analysis

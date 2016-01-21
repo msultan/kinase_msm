@@ -5,7 +5,8 @@ import os
 from kinase_msm.mdl_analysis import ProteinSeries, Protein
 from kinase_msm.data_loader import load_frame
 from kinase_msm.data_transformer import create_assignment_matrix, create_tics_array
-
+from scipy.spatial.distance import cdist
+from msmbuilder.utils.nearest import KDTree
 """
 Set of helper scripts for sampling tics
 """
@@ -77,7 +78,11 @@ def pull_frames(yaml_file, protein_name, tic_index, n_frames, key_mapping,
 
     save_dir = os.path.join(yaml_file["mdl_dir"],protein_name)
     #dump the log file
+<<<<<<< HEAD
     with open(os.path.join(save_dir,"tic%d.log"%tic_index),"w") as fout:
+=======
+    with open(os.path.join(save_dir, "tic%d.log"%tic_index),"w") as fout:
+>>>>>>> 484b6ed86521372f2cfcd9fe7bde3838269b4307
         fout.write("Tic Value, Actual Value, TrajName, FrmInd\n")
         for line in actual_tic_val_list:
             fout.write("%s\n"%line)
@@ -88,6 +93,29 @@ def pull_frames(yaml_file, protein_name, tic_index, n_frames, key_mapping,
 
     return
 
+def _load_protein_matrices(yaml_file, protein_name):
+    """
+    Helper routine to load matrices for a protein
+    :param yaml_file: yaml file to work with
+    :param protein_name: name of the protein
+    :return:
+     prj :The protein Series
+     prt : The protein project
+     key_mapping: mapping of the assigment matrix 0-axis to traj names
+     assignment_matrix: Massive matrix of
+     tics_mapping: mapping of the tics_array matrix 0-axis to traj names
+     tics_array: Multi dimensional array where the 0th axis is equal to the
+     number of trajectors, the 1st axis is equal to largest traj and the
+     3rd dimension is equal to the number of tics in the mdl.
+    """
+    prj = ProteinSeries(yaml_file)
+    prt = Protein(prj, protein_name)
+
+    key_mapping, assignment_matrix  = create_assignment_matrix(prt.fixed_assignments)
+    tics_mapping , tics_array  = create_tics_array(prt.fixed_assignments, prt.kmeans_mdl,
+                                        prt.tica_data)
+
+    return prj, prt, key_mapping, assignment_matrix, tics_mapping, tics_array
 
 def sample_one_tic(yaml_file,protein_name,tic_index,n_frames, scheme="linear"):
     """
@@ -98,16 +126,58 @@ def sample_one_tic(yaml_file,protein_name,tic_index,n_frames, scheme="linear"):
     :return: Dumps a tic%d.xtc and tic%d.log for a given
     protein inside its model.
     """
-    prj = ProteinSeries(yaml_file)
-    prt = Protein(prj, protein_name)
 
-    key_mapping, assignment_matrix  = create_assignment_matrix(prt.fixed_assignments)
-    _ , tics_array  = create_tics_array(prt.fixed_assignments, prt.kmeans_mdl,
-                                        prt.tica_data)
+    prj, prt, key_mapping, assignment_matrix,\
+    tics_mapping, tics_array = _load_protein_matrices(yaml_file, protein_name)
+
 
     yaml_file = load_yaml_file(yaml_file)
     pull_frames(yaml_file,protein_name,tic_index,n_frames,key_mapping,assignment_matrix,
                 tics_array, prt.tica_data,scheme)
+    return
+
+def sample_tic_region(yaml_file, protein_name, tic_region,
+                      n_frames=50, fname=None):
+    """
+    Helper function for sampling tic in a particular tic_region.
+    :param yaml_file: The projects yaml file
+    :param protein_name: The name of the protein
+    :param tic_region(dict): The tic_region. Can be multidimensional with
+    1 number per tic coordinate(defaults to 0 for all non-mentioned regions)
+    :param n_frames: The number of frames around the coordinate
+    :return:
+    """
+
+    yaml_file = load_yaml_file(yaml_file)
+
+    prj = ProteinSeries(yaml_file)
+    prt = Protein(prj, protein_name)
+
+    fake_coordinate = np.zeros(prt.n_tics_)
+
+    for i in range(prt.n_tics_):
+        fake_coordinate[i] = tic_region[i]
+
+    key_list = list(prt.tica_data.keys())
+    tree = KDTree([prt.tica_data[i] for i in key_list])
+
+    dis, ind = tree.query(fake_coordinate, n_frames)
+
+    traj_list = []
+    for i in ind:
+        t, f = i
+        traj_list.append(load_frame(yaml_file["base_dir"],
+                                    protein_name,key_list[t],f))
+
+    trj = traj_list[0] + traj_list[1:]
+    save_dir = os.path.join(yaml_file["mdl_dir"], protein_name)
+
+    if fname is None:
+        fname = "sampled_tic_region.xtc"
+
+    trj.save_xtc(os.path.join(save_dir,fname))
+    trj[0].save_pdb(os.path.join(save_dir,"prot.pdb"))
+
     return
 
 
