@@ -42,6 +42,7 @@ def _test_tic_sampling(yaml_file, protein_name, tic_list, n_frames, scheme):
         assert (t_f[0][:, tic_index] <= all_vals[-1]).all()
     return True
 
+
 def _test_sample_region(yaml_file, protein_name, tic_region,
                       n_frames=5, fname="temp.xtc"):
     sample_tic_region(yaml_file, protein_name, tic_region,
@@ -53,6 +54,7 @@ def _test_sample_region(yaml_file, protein_name, tic_region,
 def test_tica_utils():
     yaml_file = os.path.join(base_dir,"mdl_dir","project.yaml")
     yaml_file = load_yaml_file(yaml_file)
+    fit_pipeline(yaml_file["base_dir"])
     assert _test_tic_sampling(yaml_file, "kinase_1", [0,1], 5, "linear")
     a={}
     a[0]=0.3

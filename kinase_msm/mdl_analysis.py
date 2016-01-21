@@ -12,7 +12,7 @@ class ProteinSeries(object):
         self.base_dir = self.yaml_file["base_dir"]
         self.mdl_dir = self.yaml_file["mdl_dir"]
         if relative_loc is None:
-            self.relative_loc = os.path.abspath(self.mdl_dir)
+            self.relative_loc = self.mdl_dir
         else:
             self.relative_loc = os.path.join(relative_loc,
                                              os.path.split(self.mdl_dir)[1])
