@@ -142,7 +142,7 @@ def fit_bayes_msms(yaml_file):
     for protein in yaml_file["protein_list"]:
         print(protein)
         change_protein_mdl_dir(yaml_file["mdl_dir"], protein)
-        assignments = verboseload("fixed_assignments.pkl")
+        assignments = verboseload("assignments.pkl")
         msm_mdl = BayesianMarkovStateModel(n_samples=bayesmsm__n_samples,
                                            n_steps=bayesmsm__n_steps,
                                            lag_time=msm__lag_time,
