@@ -37,7 +37,7 @@ def _test_tic_sampling(yaml_file, protein_name, tic_list, n_frames, scheme):
             all_vals.extend(traj_tica_data[:,tic_index])
             #sort it because all three sampling schemes use it
         all_vals = np.sort(all_vals)
-        #make sure the frames are within limits
+        #make sure the frames are within limitsss
         assert (t_f[0][:, tic_index] >= all_vals[0]).all()
         assert (t_f[0][:, tic_index] <= all_vals[-1]).all()
     return True
