@@ -16,12 +16,12 @@ def fit_protein_tica(yaml_file):
     mdl_params = yaml_file["mdl_params"]
 
     tica__lag_time = mdl_params["tica__lag_time"]
-    tica__gamma = mdl_params["tica__gamma"]
+    tica__shrinkage = mdl_params["tica__shrinkage"]
     tica__weighted_transform = mdl_params["tica__weighted_transform"]
     tica__n_components = mdl_params["tica__n_components"]
 
     protein_tica_mdl = tICA(n_components=tica__n_components, lag_time=tica__lag_time,
-                            gamma=tica__gamma,
+                            shrinkage=tica__shrinkage,
                             weighted_transform=tica__weighted_transform)
 
     for protein in yaml_file["protein_list"]:

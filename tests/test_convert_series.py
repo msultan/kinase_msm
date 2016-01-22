@@ -25,7 +25,7 @@ def _setup_test():
                                           "kinase_2":["fake_proj3"]},
                           mdl_params= {"cluster__n_clusters": 2,
                                        "msm__lag_time": 1,
-                                       "tica__gamma": 0.005,
+                                       "tica__shrinkage": 0.005,
                                        "tica__lag_time": 1,
                                        "tica__n_components": 2,
                                        "tica__weighted_transform": True}

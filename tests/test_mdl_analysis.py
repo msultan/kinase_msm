@@ -22,7 +22,7 @@ def test_project():
         project_dict = {"kinase_1": ["fake_proj1",],
                         "kinase_2": ["fake_proj2"]}
         mdl_params = {'tica__n_components': 1, 'tica__lag_time': 1,
-                  'tica__weighted_transform': True, 'tica__gamma': 0.01,
+                  'tica__weighted_transform': True, 'tica__shrinkage': 0.01,
                   'cluster__n_clusters': 2,'msm__lag_time': 1, 'bayesmsm__n_samples':1,
                   'bayesmsm__n_steps':1}
 

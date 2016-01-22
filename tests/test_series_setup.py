@@ -25,7 +25,7 @@ def test_setup_series_analysis():
     project_dict = {"fake_kinase1": ["fake_proj1", "fake_proj2"],
                     "fake_kinase2": ["fake_proj3"]}
     mdl_params = {'tica__n_components': 1, 'tica__lag_time': 2,
-                  'tica__weighted_transform': True, 'tica__gamma': 0.01,
+                  'tica__weighted_transform': True, 'tica__shrinkage': 0.01,
                   'cluster__n_clusters': 174}
 
     with enter_temp_directory():
