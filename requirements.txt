@@ -8,4 +8,4 @@ yaml
 nose
 pandas
 scikit-learn
-tables
+pytables
