@@ -9,5 +9,5 @@ conda update conda
 conda info -a
 conda create --yes -n _test python=$TRAVIS_PYTHON_VERSION `cat requirements.txt | xargs`
 source activate _test
-python -c 'import yaml'
+pip install git+https://github.com/msmbuilder/msmbuilder.git
 python setup.py install
