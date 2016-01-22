@@ -1,5 +1,4 @@
 numpy
-msmbuilder
 flake8
 seaborn
 pyyaml
