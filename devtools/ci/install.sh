@@ -4,11 +4,10 @@ wget http://repo.continuum.io/miniconda/$MINICONDA
 if [[ $MINICONDA_MD5 != $(md5sum $MINICONDA | cut -d ' ' -f 1) ]]; then  echo "Miniconda MD5 mismatch"; exit 1; fi
 bash $MINICONDA -b
 export PATH=$HOME/miniconda3/bin:$PATH
-pip install git+https://github.com/msmbuilder/msmbuilder.git
 conda config --add channels omnia
 conda update conda
 conda info -a
 conda create --yes -n _test python=$TRAVIS_PYTHON_VERSION `cat requirements.txt | xargs`
 source activate _test
-python -c 'import yaml'
+pip install git+https://github.com/msmbuilder/msmbuilder.git
 python setup.py install
