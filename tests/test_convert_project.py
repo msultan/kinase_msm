@@ -94,6 +94,23 @@ def test_convert_project():
         return os.path.join(fpath,six.b("results-000.tar.bz2")) in flist and \
                os.path.join(fpath,six.b("results-002.tar.bz2")) not in flist
 
+    def test_non_contingous():
+        """
+        Kinase2/fake_proj3/RUN1/ has two clones Clone 0 and Clone 2
+        we make sure that the naming convention is correct
+        """
+        assert os.path.isfile(os.path.join(base_dir,"kinase_2",
+                                              "protein_traj",
+                                              "fake_proj3_1_0.hdf5"))
+
+        assert not os.path.isfile(os.path.join(base_dir,"kinase_2",
+                                              "protein_traj",
+                                              "fake_proj3_1_1.hdf5"))
+
+        assert os.path.isfile(os.path.join(base_dir,"kinase_2",
+                                              "protein_traj",
+                                              "fake_proj3_1_2.hdf5"))
+        return True
 
     for i in range(3):
         #extract the project multiple times to see what happens
@@ -110,7 +127,7 @@ def test_convert_project():
         extract_project_wrapper(yaml_file, "kinase_2", "fake_proj3", pool,
                 protein_only=True)
         assert test_stripped_hdf5("kinase_2", "fake_proj3", 0, 0)
-
+        assert test_non_contingous()
 
     return True
 
