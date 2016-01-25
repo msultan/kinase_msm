@@ -165,15 +165,16 @@ def plot_2d(prj, prt, tic_list, x_array=None, y_array=None, n_bins=100):
         x_array = lin_spaced_tic[tic_list[0]]
         y_array = lin_spaced_tic[tic_list[1]]
     else:
-        n_bins = len(lin_spaced_tic) - 1
+        n_bins = len(x_array) - 1
 
     H_overall = np.zeros((n_bins,n_bins))
    #get data
     c_x = prt.tic_dict[tic_list[0]]
     c_y = prt.tic_dict[tic_list[1]]
-    for i in range(protein.n_states_):
+    for i in range(prt.n_states_):
         H,x,y=np.histogram2d(c_x[i],c_y[i],bins=[x_array,y_array],normed=True)
-        H_overall = H_overall + msm_mdl.populations_[i]*H
+        H_overall = H_overall + prt.msm.populations_[i]*H
     H_copy = -0.6*np.log(H_overall)
 
     return H_copy.T
+

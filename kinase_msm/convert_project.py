@@ -187,14 +187,16 @@ def extract_project_wrapper(yaml_file, protein, proj,
 
     #get the runs/clones
 
-    runs = len(glob.glob(proj_folder+"/RUN*"))
-    clones = len(glob.glob(proj_folder+"/RUN0/CLONE*"))
+    rlist = glob.glob(proj_folder+"/RUN*")
+    runs = len(rlist)
+    clist=[len(glob.glob(proj_folder+"/%s/CLONE*"%i)) for i in rlist]
+    clones = len(clist)
 
-    print("Found %d runs and %d clones in %s"%(runs,clones,proj_folder))
+    print("Found %d traj in project folder %s"%(runs*clones,proj_folder))
 
     jobs = [(proj, protein_folder, proj_folder, top_folder, run, clone, protein_only)
-            for run in range(runs)
-            for clone in range(clones)]
+            for run in rlist
+            for clone in clist]
     result = view.map(hdf5_concatenate,jobs)
 
 
