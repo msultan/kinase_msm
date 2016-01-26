@@ -56,11 +56,8 @@ def _sanity_test(base_dir, protein, msm_mdl, tica_data, kmeans_mdl, assignments)
     for i, v in enumerate(list(tica_data.keys())[:20]):
         # skip
         if not np.isnan(assignments[v]).any():
-
             assert((msm_mdl.transform(kmeans_mdl.transform(
                 [tica_data[v][:, :tics_to_use]])) == assignments[v]).all())
-            trj = load_traj(base_dir, mutant, v.split(".jl")[0])
-            assert(trj.n_frames == assignments[v].shape[0])
     return
 
 
