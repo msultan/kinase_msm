@@ -45,7 +45,7 @@ def sample_msm_traj(yaml_file, prt_name, n_steps, starting_state = None,
 
     yaml_file = load_yaml_file(yaml_file)
     ser = ProteinSeries(yaml_file)
-    prt =Protein(ser,"kinase_2")
+    prt =Protein(ser,prt_name)
 
     # this returns in original assignment space
     msm_traj = prt.msm.sample_discrete(state=starting_state, n_steps=n_steps)
