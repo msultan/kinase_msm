@@ -53,7 +53,7 @@ def load_frame(base_dir, protein, filename, frame_index):
 
 def _sanity_test(base_dir, protein, msm_mdl, tica_data, kmeans_mdl, assignments):
     tics_to_use = kmeans_mdl.cluster_centers_.shape[1]
-    for i, v in enumerate(tica_data.keys()[:20]):
+    for i, v in enumerate(list(tica_data.keys())[:20]):
         # skip
         if not np.isnan(assignments[v]).any():
 
