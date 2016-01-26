@@ -3,7 +3,8 @@
 from kinase_msm.tica_utils import *
 import mdtraj as mdt
 from kinase_msm.fit_transform_kinase_series import *
-
+from kinase_msm.msm_utils import sample_msm_traj
+from kinase_msm.mdl_analysis import ProteinSeries, Protein
 from msmbuilder.featurizer import DihedralFeaturizer
 
 if os.path.isdir("tests"):
@@ -64,6 +65,30 @@ def test_tica_utils():
     a={}
     a[0]=0.3
     a[1]=0.4
-    assert _test_sample_region(yaml_file,"kinase_1",a)
+    assert _test_sample_region(yaml_file,"kinase_1", a)
     return True
 
+def _fit_transform(prt, trj):
+    f=DihedralFeaturizer(types=['phi', 'psi','chi1'])
+    feat = f.partial_transform(trj)
+    t_f = prt.tica_mdl.transform([feat])
+    st = prt.kmeans_mdl.transform(t_f)
+    return st
+
+def test_msm_traj():
+    yaml_file = os.path.join(base_dir,"mdl_dir","project.yaml")
+    yaml_file = load_yaml_file(yaml_file)
+    n_steps=2
+    ser = ProteinSeries(yaml_file,base_dir)
+    prt = Protein(ser, "kinase_2")
+    starting_state = prt.msm.state_labels_[0]
+    sample_msm_traj(yaml_file, "kinase_2",n_steps=n_steps,starting_state=starting_state)
+    with enter_protein_mdl_dir(yaml_file, "kinase_2"):
+        msm_steps = verboseload("msm_traj.pkl")
+        msm_traj = mdt.load("msm_traj.xtc",top="prot.pdb")
+        assert (msm_traj.n_frames==n_steps)
+        assert(len(msm_steps)==n_steps)
+        states = _fit_transform(prt, msm_traj)
+        assert (states==msm_steps).all()
+
+    return True

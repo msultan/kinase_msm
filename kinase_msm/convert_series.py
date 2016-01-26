@@ -1,7 +1,7 @@
 #!/bin/env python
 import os
-from kinase_msm.convert_project import extract_project_wrapper, _sanity_tests
-from kinase_msm.data_loader import load_yaml_file
+from .convert_project import extract_project_wrapper, _sanity_tests
+from .data_loader import load_yaml_file
 
 def convert_series(yaml_file, ip_view, protein_list = None):
     """

@@ -8,7 +8,7 @@ from msmbuilder.msm import BayesianMarkovStateModel, MarkovStateModel
 import os
 from msmbuilder.cluster import MiniBatchKMeans as KMeans
 from msmbuilder.dataset import _keynat as keynat
-from kinase_msm.data_loader import enter_protein_data_dir, enter_protein_mdl_dir, load_yaml_file
+from .data_loader import enter_protein_data_dir, enter_protein_mdl_dir, load_yaml_file
 
 
 def fit_protein_tica(yaml_file):
