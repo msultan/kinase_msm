@@ -81,7 +81,7 @@ def pull_frames(yaml_file, protein_name, tic_index, n_frames, key_mapping,
         fout.write("Index Tic Value, Actual Value, TrajName, FrmInd\n")
         for line in actual_tic_val_list:
             for item in line:
-                fout.write("%s"%item)
+                fout.write("%s "%item)
             fout.write("\n")
     
     trj.save_xtc(os.path.join(save_dir,"tic%d.xtc"%tic_index))
