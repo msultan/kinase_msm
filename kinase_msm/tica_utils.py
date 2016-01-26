@@ -67,7 +67,7 @@ def pull_frames(yaml_file, protein_name, tic_index, n_frames, key_mapping,
         actual_tic_val = find_nearest(tics_array[:,:,tic_index],i)
         traj_index, frame_index = np.where(tics_array[:,:,tic_index]==actual_tic_val)
         traj_name = key_mapping[traj_index[0]]
-        actual_tic_val_list.append([i, actual_tic_val,traj_name,frame_index[0]])
+        actual_tic_val_list.append([v,i, actual_tic_val,traj_name,frame_index[0]])
         traj_list.append(load_frame(yaml_file["base_dir"],
                                     protein_name,traj_name,frame_index[0]))
 
@@ -78,9 +78,11 @@ def pull_frames(yaml_file, protein_name, tic_index, n_frames, key_mapping,
     save_dir = os.path.join(yaml_file["mdl_dir"],protein_name)
     #dump the log file
     with open(os.path.join(save_dir, "tic%d.log"%tic_index),"w") as fout:
-        fout.write("Tic Value, Actual Value, TrajName, FrmInd\n")
+        fout.write("Index Tic Value, Actual Value, TrajName, FrmInd\n")
         for line in actual_tic_val_list:
-            fout.write("%s\n"%line)
+            for item in line:
+                fout.write("%s"%item)
+            fout.write("\n")
     
     trj.save_xtc(os.path.join(save_dir,"tic%d.xtc"%tic_index))
 
