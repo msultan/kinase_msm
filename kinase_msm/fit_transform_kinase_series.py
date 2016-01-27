@@ -5,6 +5,7 @@ from msmbuilder.decomposition import tICA
 from msmbuilder.utils import verboseload, verbosedump
 import glob
 from msmbuilder.msm import BayesianMarkovStateModel, MarkovStateModel
+from msmbuilder.msm.validation import BootStrapMarkovStateModel
 import os
 from msmbuilder.cluster import MiniBatchKMeans as KMeans
 from msmbuilder.dataset import _keynat as keynat
@@ -122,6 +123,23 @@ def fit_msms(yaml_file):
             verbosedump(fixed_assignments, 'fixed_assignments.pkl')
     return
 
+def fit_bootstrap(yaml_file):
+    mdl_params = yaml_file["mdl_params"]
+    msm__lag_time = mdl_params["msm__lag_time"]
+    for protein in yaml_file["protein_list"]:
+        with enter_protein_mdl_dir(yaml_file, protein):
+            print(protein)
+            assignments = verboseload("assignments.pkl")
+            msm_mdl =BootStrapMarkovStateModel(n_samples=800,
+                                              lag_time=msm__lag_time)
+            msm_mdl.fit([assignments[i] for i in assignments.keys()])
+            verbosedump(msm_mdl, "bootstrap_msm_mdl.pkl")
+            fixed_assignments = {}
+            for i in assignments.keys():
+                fixed_assignments[i] = msm_mdl.mle.transform(
+                    assignments[i], mode='fill')[0]
+            verbosedump(fixed_assignments, 'fixed_assignments.pkl')
+    return            
 
 def fit_bayes_msms(yaml_file):
     mdl_params = yaml_file["mdl_params"]
