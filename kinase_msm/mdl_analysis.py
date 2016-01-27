@@ -2,8 +2,8 @@
 
 import os
 from msmbuilder.utils import verboseload, verbosedump
-from kinase_msm.data_loader import load_yaml_file
-
+from .data_loader import load_yaml_file
+import numpy as np
 
 class ProteinSeries(object):
 
@@ -84,23 +84,13 @@ class Protein(object):
         '''
         :return: contains a list of the minimum value along every tic coordinate
         '''
-        tic_min = []
-
-        for tic_index in range(self.n_tics_):
-            cur_tic_min = min([min(i) for i in self.tic_dict[tic_index].values()])
-            tic_min.append(cur_tic_min)
-        return tic_min
+        return np.min(np.concatenate(list(self.tica_data.values())),axis=0)
 
     def _get_tic_max(self):
         """
        :return: contains a list of the max value along every tic coordinate
        """
-        tic_max = []
-        for tic_index in range(self.n_tics_):
-            cur_tic_min = max([max(i) for i in self.tic_dict[tic_index].values()])
-            tic_max.append(cur_tic_min)
-
-        return tic_max
+        return np.max(np.concatenate(list(self.tica_data.values())),axis=0)
 
     @property
     def tic_min(self):
@@ -125,3 +115,16 @@ class Protein(object):
         :return: a dictionary of lists
         """
         return self.tic_dict[tic_index]
+
+@classmethod
+def _map_obs_to_state(cls, obs_dict):
+    result_dict=[]
+    for j in range(cls.n_states_):
+        result_dict[j] = []
+    for traj_index, traj_name in enumerate(cls.fixed_assignments.keys()):
+        for f_i, fixed_state in enumerate(cls.fixed_assignments[traj_name]):
+            try:
+                    result_dict[fixed_state].append(obs_dict[traj_name][f_i])
+            except:
+                pass
+    return result_dict
