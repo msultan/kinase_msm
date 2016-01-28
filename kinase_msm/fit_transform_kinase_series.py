@@ -123,7 +123,7 @@ def fit_msms(yaml_file):
             verbosedump(fixed_assignments, 'fixed_assignments.pkl')
     return
 
-def fit_bootstrap(yaml_file):
+def fit_bootstrap(yaml_file,view=None):
     mdl_params = yaml_file["mdl_params"]
     msm__lag_time = mdl_params["msm__lag_time"]
     for protein in yaml_file["protein_list"]:
@@ -132,7 +132,7 @@ def fit_bootstrap(yaml_file):
             assignments = verboseload("assignments.pkl")
             msm_mdl =BootStrapMarkovStateModel(n_samples=100,
                                               lag_time=msm__lag_time)
-            msm_mdl.fit([assignments[i] for i in assignments.keys()])
+            msm_mdl.fit([assignments[i] for i in assignments.keys()],view=None)
             verbosedump(msm_mdl, "bootstrap_msm_mdl.pkl")
             fixed_assignments = {}
             for i in assignments.keys():
