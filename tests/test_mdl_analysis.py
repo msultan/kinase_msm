@@ -23,8 +23,8 @@ def test_project():
                         "kinase_2": ["fake_proj2"]}
         mdl_params = {'tica__n_components': 1, 'tica__lag_time': 1,
                   'tica__weighted_transform': True, 'tica__shrinkage': 0.01,
-                  'cluster__n_clusters': 2,'msm__lag_time': 1, 'bayesmsm__n_samples':1,
-                  'bayesmsm__n_steps':1}
+                  'cluster__n_clusters': 2,'msm__lag_time': 1,
+                  'bootstrap__n_samples':1}
 
         create_fake_data(base_dir, protein_list, project_dict)
 
@@ -76,10 +76,12 @@ def _test_protein_with_project(prj):
     assert isinstance(p1.msm, MarkovStateModel)
     assert (p1.msm.left_eigenvectors_ ==
             verboseload(os.path.join(prj.mdl_dir,"kinase_1","msm_mdl.pkl")).left_eigenvectors_).all()
-
+    assert (p1.bootrap_msm.mle.left_eigenvectors_ ==
+            verboseload(os.path.join(prj.mdl_dir,"kinase_1","msm_mdl.pkl")).left_eigenvectors_).all()
     assert (p2.msm.left_eigenvectors_ ==
             verboseload(os.path.join(prj.mdl_dir,"kinase_2","msm_mdl.pkl")).left_eigenvectors_).all()
-
+    assert (p2.bootrap_msm.mle.left_eigenvectors_ ==
+            verboseload(os.path.join(prj.mdl_dir,"kinase_2","msm_mdl.pkl")).left_eigenvectors_).all()
     return True
 
 def _test_obs_mapping(prj):

@@ -126,14 +126,19 @@ def fit_msms(yaml_file):
 def fit_bootstrap(yaml_file,pool=None):
     mdl_params = yaml_file["mdl_params"]
     msm__lag_time = mdl_params["msm__lag_time"]
+    if "bootstrap__n_samples" in mdl_params.keys():
+        bootstrap__n_samples = mdl_params["bootstrap__n_samples"]
+    else:
+        bootstrap__n_samples = 100
     for protein in yaml_file["protein_list"]:
         with enter_protein_mdl_dir(yaml_file, protein):
             print(protein)
             assignments = verboseload("assignments.pkl")
-            msm_mdl =BootStrapMarkovStateModel(n_samples=100,
-                                              lag_time=msm__lag_time)
-            msm_mdl.fit([assignments[i] for i in assignments.keys()],pool=pool)
+            msm_mdl =BootStrapMarkovStateModel(n_samples=bootstrap__n_samples,
+                                              lag_time=msm__lag_time, n_procs=2)
+            msm_mdl.fit([assignments[i] for i in assignments.keys()], pool=pool)
             verbosedump(msm_mdl, "bootstrap_msm_mdl.pkl")
+            verbosedump(msm_mdl.mle, "msm_mdl.pkl")
             fixed_assignments = {}
             for i in assignments.keys():
                 fixed_assignments[i] = msm_mdl.mle.transform(
@@ -177,7 +182,6 @@ def fit_pipeline(base_dir, mdl_dir=None):
     transform_protein_tica(yaml_file)
     fit_protein_kmeans(yaml_file)
     transform_protein_kmeans(yaml_file)
-    fit_msms(yaml_file)
-    fit_bayes_msms(yaml_file)
+    fit_bootstrap(yaml_file)
 
     return

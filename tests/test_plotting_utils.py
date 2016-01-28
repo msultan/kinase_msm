@@ -17,8 +17,9 @@ def test_plotting_utils():
                             "kinase_2": ["fake_proj2"]}
         mdl_params = {'tica__n_components': 1, 'tica__lag_time': 1,
                       'tica__weighted_transform': True, 'tica__shrinkage': 0.01,
-                      'cluster__n_clusters': 2,'msm__lag_time': 1, 'bayesmsm__n_samples':1,
-                      'bayesmsm__n_steps':1}
+                      'cluster__n_clusters': 2,'msm__lag_time': 1,
+                      'bootrap__n_samples':1
+                      }
 
 
         create_fake_data(base_dir, protein_list, project_dict)

@@ -31,8 +31,8 @@ def test_pipeline():
                         "kinase_2": ["fake_proj2"]}
         mdl_params = {'tica__n_components': 1, 'tica__lag_time': 1,
                   'tica__weighted_transform': True, 'tica__shrinkage': 0.01,
-                  'cluster__n_clusters': 2,'msm__lag_time': 1, 'bayesmsm__n_samples':1,
-                  'bayesmsm__n_steps':1}
+                  'cluster__n_clusters': 2,
+                  'msm__lag_time': 1, 'bootstrap__n_samples':1 }
 
         create_fake_data(base_dir, protein_list, project_dict)
 
@@ -45,7 +45,7 @@ def test_pipeline():
         fit_protein_kmeans(yaml_file)
         transform_protein_kmeans(yaml_file)
         fit_msms(yaml_file)
-        fit_bayes_msms(yaml_file)
+        fit_bootstrap(yaml_file)
 
         raw_count_obs = 0
         for p in protein_list:
@@ -58,7 +58,7 @@ def test_pipeline():
         assert os.path.exists(os.path.join(mdl_dir,"kinase_2/tica_data.pkl"))
         assert os.path.exists(os.path.join(mdl_dir,"kinase_1/msm_mdl.pkl"))
         assert os.path.exists(os.path.join(mdl_dir,"kinase_2/msm_mdl.pkl"))
-        assert os.path.exists(os.path.join(mdl_dir,"kinase_2/bayesmsm_mdl.pkl"))
+        assert os.path.exists(os.path.join(mdl_dir,"kinase_2/bootstrap_msm_mdl.pkl"))
         assert os.path.exists(os.path.join(mdl_dir,"kmeans_mdl.pkl"))
 
         return

@@ -39,8 +39,6 @@ def featurize_file(job_tuple):
     return
 
 
-    return
-
 def _check_output_folder_exists(yaml_file, protein):
     yaml_file = load_yaml_file(yaml_file)
     output_folder = os.path.join(yaml_file["base_dir"],

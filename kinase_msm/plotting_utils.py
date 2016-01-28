@@ -200,7 +200,6 @@ def two_dim_tic_free_energy(prj, prt, tic_list, x_array=None, y_array=None, n_bi
 
     return H_copy
 
-
 def one_dim_free_energy(prt, x_obs, bins):
     """
     :param prj: Series we are working with

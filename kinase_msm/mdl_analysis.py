@@ -35,9 +35,8 @@ class Protein(object):
         self.kmeans_mdl = self.project.kmeans_mdl
         self.tica_mdl = self.project.tica_mdl
         self.protein_mdl_dir = os.path.join(self.project.relative_loc, self.name)
-        self.msm = verboseload("%s/msm_mdl.pkl" % self.protein_mdl_dir)
-        self.bayes_mdl = verboseload(
-            '%s/bayesmsm_mdl.pkl' % self.protein_mdl_dir)
+        self.bootrap_msm =  verboseload("%s/bootstrap_msm_mdl.pkl" % self.protein_mdl_dir)
+        self.msm = self.bootrap_msm.mle
         self.tica_data = verboseload("%s/tica_data.pkl" % self.protein_mdl_dir)
         self.assignments = verboseload(
             "%s/assignments.pkl" % self.protein_mdl_dir)
