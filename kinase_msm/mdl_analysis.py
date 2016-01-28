@@ -116,9 +116,9 @@ class Protein(object):
         """
         return self.tic_dict[tic_index]
 
-@classmethod
+
 def _map_obs_to_state(cls, obs_dict):
-    result_dict=[]
+    result_dict={}
     for j in range(cls.n_states_):
         result_dict[j] = []
     for traj_index, traj_name in enumerate(cls.fixed_assignments.keys()):

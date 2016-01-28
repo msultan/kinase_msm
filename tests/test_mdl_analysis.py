@@ -1,6 +1,6 @@
 #!/bin/env python
 import os
-from kinase_msm.mdl_analysis import ProteinSeries, Protein
+from kinase_msm.mdl_analysis import ProteinSeries, Protein, _map_obs_to_state
 from kinase_msm.fit_transform_kinase_series import fit_pipeline
 from kinase_msm.series_setup import setup_series_analysis
 from msmbuilder.decomposition import tICA
@@ -42,6 +42,7 @@ def test_project():
         assert _test_protein_with_project(prj)
         assert _test_tic_dict(prj)
 
+        assert _test_obs_mapping(prj)
     return
 
 
@@ -79,4 +80,15 @@ def _test_protein_with_project(prj):
     assert (p2.msm.left_eigenvectors_ ==
             verboseload(os.path.join(prj.mdl_dir,"kinase_2","msm_mdl.pkl")).left_eigenvectors_).all()
 
+    return True
+
+def _test_obs_mapping(prj):
+    p1 = Protein(prj, "kinase_1")
+    rnd_tic = np.random.randint(p1.n_tics_)
+    obs_dict = {}
+    for i in p1.tica_data.keys():
+        obs_dict[i] = p1.tica_data[i][:,rnd_tic]
+    res=_map_obs_to_state(p1, obs_dict)
+    for i in range(p1.n_states_):
+        assert(sorted(res[i])==sorted(p1.tic_dict[rnd_tic][i]))
     return True

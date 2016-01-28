@@ -59,7 +59,7 @@ def test_plotting_utils():
             return True
 
         def test_histogram_data():
-            H_dict, H_calc, _ = histogram_data(prj, prt1, [0],
+            H_dict, H_calc, _ = tica_histogram(prj, prt1, [0],
                                                x_array=lin_spaced_tic_dict[0],
                                                n_bins=None)
             assert(len(H_dict.keys()) == prt1.n_states_)
@@ -72,7 +72,7 @@ def test_plotting_utils():
 
 
         def test_one_dim_free_energy():
-            df = one_dim_free_energy(prj, prt1, 0, n_bins=None ,
+            df = one_dim_tic_free_energy(prj, prt1, 0, n_bins=None ,
                         lin_spaced_tic=lin_spaced_tic_dict[0], errorbars=False)
 
             assert((df.protein_name==prt1.name).all())
