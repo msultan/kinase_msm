@@ -1,6 +1,7 @@
 #!/bin/evn python
 from kinase_msm.data_loader import load_yaml_file
 import numpy as np
+import pandas as pd
 import os
 from kinase_msm.mdl_analysis import ProteinSeries, Protein
 from kinase_msm.data_loader import load_frame
@@ -9,6 +10,7 @@ from msmbuilder.utils.nearest import KDTree
 """
 Set of helper scripts for sampling tics
 """
+
 
 def find_nearest(a, a0):
     "Element in nd array `a` closest to the scalar value `a0`"
@@ -209,3 +211,36 @@ def sample_for_all_proteins(yaml_file, protein=None, tics=None, n_frames=100,
                            scheme)
 
     return
+
+
+def _map_tic_component(tic_component, df, trj):
+    '''
+    Function map a tic component to all atoms and optionally all residues
+    by summing over all the feature importances where the residue index
+    appears
+    :param tic_component: The feature weight vector to use
+    :param df: Dataframe describing each feature
+    :param trj: mdtraj trajctory obj
+    :return:atom_importance and residue importance
+    '''
+    n_atoms = trj.top.n_atoms
+    n_residues = trj.top.n_residues
+
+    atom_importance_vector = np.zeros((1,n_atoms))
+    residue_importance_vector =  np.zeros((1,n_residues))
+
+    #over all features
+    for i in df.iterrows():
+        #over all every residue in that feature
+        for j in i[1]["resid"]:
+            #add to running total
+            residue_importance_vector[0, j] += abs(tic_component[i[0]])
+
+    for r in trj.topology.residues:
+        for a in r.atoms:
+            atom_importance_vector[0, a.index] = residue_importance_vector[0, r.index]
+
+
+    return atom_importance_vector, residue_importance_vector
+
+

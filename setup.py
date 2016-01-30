@@ -16,4 +16,7 @@ setup(
     author_email="msultan at stanford dot edu",
     description=("Useful scripts across kinases MSMs"),
     long_description=read('README.md'),
+    entry_points = {
+        'console_scripts': ['tica_vmd=kinase_msm.vmd_write:main'],
+    }
 )

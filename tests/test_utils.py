@@ -1,11 +1,17 @@
 #!/bin/evn python
 
 from kinase_msm.tica_utils import *
+import pandas as pd
 import mdtraj as mdt
 from kinase_msm.fit_transform_kinase_series import *
 from kinase_msm.msm_utils import sample_msm_traj
+from kinase_msm.tica_utils import _map_tic_component
 from kinase_msm.mdl_analysis import ProteinSeries, Protein
+from test_convert_series import _setup_test, _cleanup_test
+from nose.tools import with_setup
 from msmbuilder.featurizer import DihedralFeaturizer
+from msmbuilder.utils import verboseload
+
 
 if os.path.isdir("tests"):
     base_dir = os.path.abspath(os.path.join("./tests/test_data"))
@@ -91,4 +97,34 @@ def test_msm_traj():
         states = _fit_transform(prt, msm_traj)
         assert (states==msm_steps).all()
 
-    return True
+
+@with_setup(_setup_test, _cleanup_test)
+def test_map_tic_component():
+    yaml_file = os.path.join(base_dir,"mdl_dir","project.yaml")
+    yaml_file = load_yaml_file(yaml_file)
+    fit_pipeline(yaml_file["base_dir"])
+
+    with enter_protein_data_dir(yaml_file, "kinase_1"):
+        df = pd.DataFrame(verboseload(
+            os.path.join(yaml_file["feature_dir"],
+                         "feature_descriptor.h5")
+        ))
+        trj = mdt.load(os.path.join("protein_traj", "fake_proj1_0_0.hdf5"))
+
+
+    ser = ProteinSeries(yaml_file,base_dir)
+    prt = Protein(ser, "kinase_1")
+
+    tica_mdl = prt.tica_mdl
+    tic_index=0
+    t_c = tica_mdl.components_[tic_index, :]
+
+    a_i, r_i = _map_tic_component(t_c, df, trj)
+
+    assert len(a_i[0]) == trj.n_atoms
+    assert len(r_i[0]) == trj.n_residues
+
+    #spot check residue 0
+    df2 = pd.DataFrame([i[1] for i in df.iterrows() if (i[1]["resid"]==0).any()])
+    r0_imp = np.sum(abs(t_c[df2.index]))
+    assert r0_imp==r_i[0,0]
