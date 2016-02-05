@@ -5,7 +5,7 @@ if [[ $MINICONDA_MD5 != $(md5sum $MINICONDA | cut -d ' ' -f 1) ]]; then  echo "M
 bash $MINICONDA -b
 export PATH=$HOME/miniconda3/bin:$PATH
 conda config --add channels omnia
-conda update conda
+#conda update conda
 conda info -a
 conda create --yes -n _test python=$TRAVIS_PYTHON_VERSION `cat requirements.txt | xargs`
 source activate _test
