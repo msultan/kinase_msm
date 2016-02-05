@@ -59,7 +59,8 @@ series_name = "btk_series"
 project_dict = proj_dict
 
 def main():
-    setup_series_analysis(base_dir,mdl_dir,feature_dir,series_name,protein_list, proj_dict, mdl_params)
+    yaml_file = setup_series_analysis(base_dir,mdl_dir,feature_dir,series_name,protein_list, proj_dict, mdl_params)
+    featurize_series(yaml_file)
     fit_pipeline(base_dir)
 
 if __name__=="__main__":
