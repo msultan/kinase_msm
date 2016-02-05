@@ -134,14 +134,15 @@ def fit_bootstrap(yaml_file,pool=None):
         with enter_protein_mdl_dir(yaml_file, protein):
             print(protein)
             assignments = verboseload("assignments.pkl")
-            msm_mdl =BootStrapMarkovStateModel(n_samples=bootstrap__n_samples,
-                                              lag_time=msm__lag_time, n_procs=2)
+            msm_mdl =BootStrapMarkovStateModel(n_samples=bootstrap__n_samples, n_procs=2,
+                                               msm_args ={'lag_time': msm__lag_time}
+                                               )
             msm_mdl.fit([assignments[i] for i in assignments.keys()], pool=pool)
             verbosedump(msm_mdl, "bootstrap_msm_mdl.pkl")
-            verbosedump(msm_mdl.mle, "msm_mdl.pkl")
+            verbosedump(msm_mdl.mle_, "msm_mdl.pkl")
             fixed_assignments = {}
             for i in assignments.keys():
-                fixed_assignments[i] = msm_mdl.mle.transform(
+                fixed_assignments[i] = msm_mdl.mle_.transform(
                     assignments[i], mode='fill')[0]
             verbosedump(fixed_assignments, 'fixed_assignments.pkl')
     return            
