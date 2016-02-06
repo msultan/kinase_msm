@@ -76,11 +76,11 @@ def _test_protein_with_project(prj):
     assert isinstance(p1.msm, MarkovStateModel)
     assert (p1.msm.left_eigenvectors_ ==
             verboseload(os.path.join(prj.mdl_dir,"kinase_1","msm_mdl.pkl")).left_eigenvectors_).all()
-    assert (p1.bootrap_msm.mle.left_eigenvectors_ ==
+    assert (p1.bootrap_msm.mle_.left_eigenvectors_ ==
             verboseload(os.path.join(prj.mdl_dir,"kinase_1","msm_mdl.pkl")).left_eigenvectors_).all()
     assert (p2.msm.left_eigenvectors_ ==
             verboseload(os.path.join(prj.mdl_dir,"kinase_2","msm_mdl.pkl")).left_eigenvectors_).all()
-    assert (p2.bootrap_msm.mle.left_eigenvectors_ ==
+    assert (p2.bootrap_msm.mle_.left_eigenvectors_ ==
             verboseload(os.path.join(prj.mdl_dir,"kinase_2","msm_mdl.pkl")).left_eigenvectors_).all()
     return True
 
