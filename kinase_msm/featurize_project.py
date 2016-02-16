@@ -39,10 +39,12 @@ def featurize_file(job_tuple):
     return
 
 
-def _check_output_folder_exists(yaml_file, protein):
+def _check_output_folder_exists(yaml_file, protein, folder_name=None):
     yaml_file = load_yaml_file(yaml_file)
+    if folder_name is None:
+        folder_name= yaml_file["feature_dir"]
     output_folder = os.path.join(yaml_file["base_dir"],
-                                  protein, yaml_file["feature_dir"])
+                                  protein,folder_name)
 
     if not os.path.isdir(output_folder):
         os.mkdir(output_folder)

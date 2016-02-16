@@ -87,7 +87,7 @@ def tica_histogram(prj, prt, tic_list, x_array=None, y_array=None, n_bins=100):
     return H, H_overall, x_center
 
 
-def bayes_one_dim_tic_free_energy(prj,prt,tic_index,n_bins=100 ,lin_spaced_tic=None):
+def bootstrap_one_dim_tic_free_energy(prj,prt,tic_index,n_bins=100 ,lin_spaced_tic=None):
     """
     :param prj: Project that the protein is a part of
     :param prt: the protein itself
@@ -108,23 +108,33 @@ def bayes_one_dim_tic_free_energy(prj,prt,tic_index,n_bins=100 ,lin_spaced_tic=N
         n_bins = len(lin_spaced_tic) - 1
 
     #get the centers stacked nicely
-    tic_cen = np.repeat([(lin_spaced_tic[:-1] + lin_spaced_tic[1:]) / 2],
-                        prt.bayes_mdl.n_samples,axis=0).flatten()
-    protein_name = np.repeat(prt.name,prt.bayes_mdl.n_samples*n_bins).flatten()
+    _labels = ["mean","lower","upper"]
+    nlbl = len(_labels)
 
-    mdl_index = np.array([np.repeat(i,n_bins)
-                          for i in range(prt.bayes_mdl.n_samples)]).flatten()
+    tic_cen = np.repeat([(lin_spaced_tic[:-1] + lin_spaced_tic[1:]) / 2],
+                        nlbl,axis=0).flatten()
+    protein_name = np.repeat(prt.name, nlbl * n_bins).flatten()
+
+    mdl_index = np.array([np.repeat(_labels[i],n_bins)
+                          for i in range(nlbl)]).flatten()
 
     #get data
     H,H_msm,_ = tica_histogram(prj,prt,tic_index,x_array=lin_spaced_tic)
 
-    for i in range(prt.bayes_mdl.n_samples):
+    mean_ = prt.bootrap_msm.mapped_populations_mean_
+    lower_ = prt.bootrap_msm.mapped_populations_mean_\
+                      - 1.96*prt.bootrap_msm.mapped_populations_sem_
+    upper_ = prt.bootrap_msm.mapped_populations_mean_\
+                      + 1.96*prt.bootrap_msm.mapped_populations_sem_
+
+    _data = [mean_, lower_, upper_]
+
+    for pop,lbl in zip(_data, _labels):
         H_overall=np.zeros(n_bins)
         for j in range(prt.n_states_):
-            H_overall = H_overall + prt.bayes_mdl.all_populations_[i][j]*H[j]
+            H_overall = H_overall + pop[j]*H[j]
         #convert to free enenrgy
         H_overall = -0.6*np.log(H_overall)
-
         free_energy.extend(H_overall)
 
     df=pd.DataFrame([list(tic_cen),list(free_energy),list(protein_name),list(mdl_index)]).T
@@ -141,7 +151,7 @@ def one_dim_tic_free_energy(prj, prt, tic_index, n_bins=100 ,
     :param n_bins: n_bins
     :param lin_spaced_tic: linearly sampled tic
     :param errorbars: whether or not to compute multiple free enegies
-    using bayes msm mdl
+    using the msm mdl
     :return: a pandas dataframe containing the free energy for the
     every point along the tic coordinate. The mdl index column contains
     "mle" for the msm free energy and an integer for the bayesian mdl
@@ -171,8 +181,8 @@ def one_dim_tic_free_energy(prj, prt, tic_index, n_bins=100 ,
     msm_df.columns=["tic_value","free_energy","protein_name","mdl_index"]
 
     if errorbars:
-        bayes_df = bayes_one_dim_tic_free_energy(prj,prt,tic_index, lin_spaced_tic=lin_spaced_tic)
-        df = pd.concat([msm_df, bayes_df])
+        bootstrap_df = bootstrap_one_dim_tic_free_energy(prj,prt,tic_index, lin_spaced_tic=lin_spaced_tic)
+        df = pd.concat([msm_df, bootstrap_df])
         return df
     else:
         return msm_df
