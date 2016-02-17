@@ -1,11 +1,12 @@
 from kinase_msm.feature_selection import series_feature_slicer, \
-    _map_residue_ind_seq_ind,_present_for_all, _get_common_residues
+    _map_residue_ind_seq_ind,_present_for_all, _get_common_residues, _get_common_features
 from mdtraj.utils.contextmanagers import enter_temp_directory
 from kinase_msm.data_loader import enter_protein_data_dir, load_yaml_file, load_random_traj
 from kinase_msm.series_setup import setup_series_analysis
 from test_pipeline import create_fake_data
 import os, glob
 from msmbuilder.utils import verboseload, verbosedump
+from msmbuilder.featurizer import DihedralFeaturizer
 
 if os.path.isdir("tests"):
     base_dir = os.path.abspath(os.path.join("./tests/test_data"))
@@ -210,7 +211,6 @@ def test_present_for_all_3():
     return
 
 
-
 def test_present_for_all_4():
 
     aligned_dict={}
@@ -243,3 +243,48 @@ def test_get_common_residues():
     res_dic =  _get_common_residues(yaml_file, aligned_dict)
     for protein in yaml_file["protein_list"]:
         assert(len(res_dic[protein])==t.n_residues)
+
+    return
+
+def test_get_common_features():
+    yaml_file = load_yaml_file(os.path.join(base_dir,"mdl_dir","project.yaml"))
+    aligned_dict={}
+    for protein in yaml_file["protein_list"]:
+        t = load_random_traj(yaml_file, protein)
+        aligned_dict[protein] = [i.code for i in t.top.residues]
+
+    common_res_dic =  _get_common_residues(yaml_file, aligned_dict)
+
+    f= DihedralFeaturizer()
+    common_feature_dic = _get_common_features(yaml_file,f, common_res_dic, False)
+    for protein in yaml_file["protein_list"]:
+        t = load_random_traj(yaml_file, protein)
+        assert(len(common_feature_dic[protein])==f.transform(t)[0].shape[1])
+
+    return
+
+
+def test_get_common_features_2():
+    yaml_file = load_yaml_file(os.path.join(base_dir,"mdl_dir","project.yaml"))
+    aligned_dict={}
+    for protein in yaml_file["protein_list"]:
+        t = load_random_traj(yaml_file, protein)
+        print([t.top.residue(i).name for i in range(5)])
+        aligned_dict[protein] = [i.code for i in t.top.residues]
+
+    common_res_dic =  _get_common_residues(yaml_file, aligned_dict)
+    #lets get rid of last few residues
+    for protein in yaml_file["protein_list"]:
+        common_res_dic[protein] = common_res_dic[protein][:5]
+        print(common_res_dic[protein])
+
+    f= DihedralFeaturizer(types=['phi','psi','chi1'])
+    common_feature_dic = _get_common_features(yaml_file,f, common_res_dic, False)
+
+    for protein in yaml_file["protein_list"]:
+        t = load_random_traj(yaml_file, protein)
+        # 4 phi, 4 psi and 4 chi1(one of the 5 has no chi1).
+        # times 2 to account for sincos transoform
+        assert(len(common_feature_dic[protein])==(4+4+4)*2)
+
+    return

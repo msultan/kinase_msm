@@ -2,11 +2,13 @@ from Bio import SeqIO
 import glob
 import os
 import numpy as np
+import pandas as pd
 from multiprocessing import Pool
 from msmbuilder.utils import verboseload, verbosedump
 from kinase_msm.data_loader import load_yaml_file
 from kinase_msm.featurize_project import _check_output_folder_exists
-from kinase_msm.data_loader import load_random_traj
+from kinase_msm.data_loader import load_random_traj, \
+    enter_protein_data_dir, enter_protein_mdl_dir
 
 """
 Set of routines to select common features amongst
@@ -20,6 +22,7 @@ def _parse_alignment_file(filename):
     for fasta in fasta_sequences:
         aligned_dict[fasta.id]=fasta.seq.tostring().upper()
     return aligned_dict
+
 
 def _present_for_all(protein, prt_mapping, prt_seq, aligned_dict):
     #test to make sure the seq matches up
@@ -70,8 +73,34 @@ def _get_common_residues(yaml_file, aligned_dict):
         result_dict[protein] = _present_for_all(protein, prt_mapping, prt_seq, aligned_dict)
     return result_dict
 
-def _get_common_features(yaml_file, featurizer, dict_common_res):
-    raise NotImplementedError("Not yet")
+
+def _get_common_features(yaml_file, featurizer, dict_common_res, save_df=True):
+    """
+    Function to get the common features across protein using the common residues.
+    can optionally save the pandas data to the mdl_dir
+    :param yaml_file: The protein yaml_file
+    :param featurizer: featurizer object used.
+    :param dict_common_res: dict of common residues indices for each protein
+    :return:
+    """
+    result_dict = {}
+    for protein in yaml_file["protein_list"]:
+        trj = load_random_traj(yaml_file, protein)
+        allowed_residue_ind = dict_common_res[protein]
+        df = pd.DataFrame(featurizer.describe_features(trj))
+
+        f_ind = np.where(np.array([set(i).issubset(allowed_residue_ind)
+                              for i in df["resid"]]) == True)[0]
+
+        result_dict[protein] = f_ind
+        if save_df:
+            new_df = df.iloc[f_ind]
+            with enter_protein_mdl_dir(yaml_file, protein):
+                verbosedump(new_df, os.path.join("feature_descriptor.h5"))
+            with enter_protein_data_dir(yaml_file, protein):
+                verbosedump(new_df, os.path.join("sliced_feature_dir",
+                                                 "feature_descriptor.h5"))
+    return result_dict
 
 def _slice_file(job_tuple):
     inp_file, feature_ind, output_folder = job_tuple
