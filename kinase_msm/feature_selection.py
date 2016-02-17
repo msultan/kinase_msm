@@ -1,10 +1,11 @@
-import os
+from Bio import SeqIO
 import glob
 import os
 from multiprocessing import Pool
 from msmbuilder.utils import verboseload, verbosedump
 from kinase_msm.data_loader import load_yaml_file
 from kinase_msm.featurize_project import _check_output_folder_exists
+from kinase_msm.data_loader import load_random_traj
 
 """
 Set of routines to select common features amongst
@@ -12,7 +13,37 @@ proteins based upon their sequence similarity.
 Creates a new folder to dump features of interest in there.
 """
 
-def _get_common_features(yaml_file, featurizer):
+def _parse_alignment_file(filename):
+    aligned_dict = {}
+    fasta_sequences = SeqIO.parse(open(filename),'fasta')
+    for fasta in fasta_sequences:
+        aligned_dict[fasta.id]=fasta.seq.tostring().upper()
+    return aligned_dict
+
+
+def _map_residue_ind_seq_ind(yaml_file, protein, aligned_dict):
+    trj = load_random_traj(yaml_file, protein)
+    mapping = {}
+    aligned_seq = aligned_dict[protein]
+    seq_index = 0
+    for i in range(trj.n_residues):
+        while True:
+            if trj.top.residue(i).code == aligned_seq[seq_index]:
+                mapping[i] = seq_index
+                seq_index += 1
+                break
+            else:
+                seq_index += 1
+                continue
+
+    return mapping
+
+
+def _get_common_residues(yaml_file, aligned_dict):
+
+    raise NotImplementedError("Not yet")
+
+def _get_common_features(yaml_file, featurizer, dict_common_res):
     raise NotImplementedError("Not yet")
 
 def _slice_file(job_tuple):
@@ -71,7 +102,12 @@ def series_feature_slicer(yaml_file, dict_feat_ind=None,
 
 
     if dict_feat_ind is None:
-        dict_feat_ind = _get_common_features(yaml_file, featurizer)
+        #load alignment file
+        aligned_dict = _parse_alignment_file(yaml_file["alignment_file"])
+        #get list of common residue indices
+        dict_common_res = _get_common_residues(yaml_file, aligned_dict)
+        #get list of feature indices
+        dict_feat_ind = _get_common_features(yaml_file, featurizer, dict_common_res)
 
     _feature_slicer(yaml_file, dict_feat_ind, folder_name, view)
 

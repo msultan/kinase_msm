@@ -1,10 +1,17 @@
-from kinase_msm.feature_selection import series_feature_slicer
+from kinase_msm.feature_selection import series_feature_slicer, _map_residue_ind_seq_ind
 from mdtraj.utils.contextmanagers import enter_temp_directory
-from kinase_msm.data_loader import enter_protein_data_dir
+from kinase_msm.data_loader import enter_protein_data_dir, load_yaml_file, load_random_traj
 from kinase_msm.series_setup import setup_series_analysis
 from test_pipeline import create_fake_data
+from nose.tools import with_setup
+from test_convert_series import _setup_test, _cleanup_test
 import os, glob
 from msmbuilder.utils import verboseload, verbosedump
+
+if os.path.isdir("tests"):
+    base_dir = os.path.abspath(os.path.join("./tests/test_data"))
+else:
+    base_dir = os.path.abspath(os.path.join("./test_data"))
 
 
 def test_slicer():
@@ -46,3 +53,100 @@ def test_slicer():
                                                           ))
                     assert (expected_file==written_file).all()
     return
+
+@with_setup(_setup_test, _cleanup_test)
+def test_map_residue_seq_no_insert():
+    yaml_file = load_yaml_file(os.path.join(base_dir,"mdl_dir","project.yaml"))
+    aligned_dict={}
+    for protein in yaml_file["protein_list"]:
+        expected = {}
+
+        t = load_random_traj(yaml_file, protein)
+
+        expected[protein] = [i.index for i in t.top.residues]
+        aligned_dict[protein] = [i.code for i in t.top.residues]
+
+        actual=_map_residue_ind_seq_ind(yaml_file, protein, aligned_dict)
+
+        assert expected[protein] == list(actual.values())
+
+    return
+
+def test_map_residue_seq_with_insert():
+    yaml_file = load_yaml_file(os.path.join(base_dir,"mdl_dir","project.yaml"))
+    aligned_dict={}
+    for protein in yaml_file["protein_list"]:
+        expected = {}
+
+        t = load_random_traj(yaml_file, protein)
+
+        expected[protein] = [i.index+3 for i in t.top.residues]
+        aligned_dict[protein] = list("___")+ [i.code for i in t.top.residues]
+
+        actual=_map_residue_ind_seq_ind(yaml_file, protein, aligned_dict)
+        assert expected[protein] == list(actual.values())
+
+    return
+
+def test_map_residue_seq_with_insert_after_10():
+    yaml_file = load_yaml_file(os.path.join(base_dir,"mdl_dir","project.yaml"))
+    aligned_dict={}
+    for protein in yaml_file["protein_list"]:
+        expected = {}
+
+        t = load_random_traj(yaml_file, protein)
+        #add an insertion AFTER 10 residues. We expect all but the 10 have
+
+        expected[protein] = [i for i in range(10)] + [i+3 for i in range(10, t.n_residues)]
+
+        aligned_dict[protein] = [i.code for i in t.top.residues][:10]+\
+                                list("___")+ \
+                                [i.code for i in t.top.residues][10:]
+
+        actual=_map_residue_ind_seq_ind(yaml_file, protein, aligned_dict)
+        assert expected[protein] == list(actual.values())
+
+    return
+
+def test_map_residue_seq_with_insert_at_end():
+    yaml_file = load_yaml_file(os.path.join(base_dir,"mdl_dir","project.yaml"))
+    aligned_dict={}
+    for protein in yaml_file["protein_list"]:
+        expected = {}
+
+        t = load_random_traj(yaml_file, protein)
+        #add an insertion AFTER 10 residues. We expect all but the 10 have
+
+        expected[protein] = [i for i in range(t.n_residues)]
+
+        aligned_dict[protein] = [i.code for i in t.top.residues]+list("___")
+
+        actual=_map_residue_ind_seq_ind(yaml_file, protein, aligned_dict)
+
+        assert expected[protein] == list(actual.values())
+    return
+
+
+def test_map_residue_seq_with_two_inserts():
+    yaml_file = load_yaml_file(os.path.join(base_dir,"mdl_dir","project.yaml"))
+    aligned_dict={}
+    for protein in yaml_file["protein_list"]:
+        expected = {}
+
+        t = load_random_traj(yaml_file, protein)
+        #add an insertion AFTER 10 residues. and then again at 20
+        expected[protein] = [i for i in range(10)] + [i+3 for i in range(10, 20)]+\
+                            [i+5 for i in range(20, t.n_residues)]
+
+        aligned_dict[protein] = [i.code for i in t.top.residues][:10]+\
+                                list("___")+ \
+                                [i.code for i in t.top.residues][10:20]+\
+                                list("__")+ \
+                                [i.code for i in t.top.residues][20:]
+
+        actual=_map_residue_ind_seq_ind(yaml_file, protein, aligned_dict)
+        assert expected[protein] == list(actual.values())
+
+    return
+
+

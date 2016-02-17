@@ -3,7 +3,11 @@ from msmbuilder.utils import verboseload, verbosedump
 import mdtraj as mdt
 import numpy as np
 import yaml
+import glob
+from msmbuilder.dataset import _keynat as keynat
 import contextlib
+import random
+
 '''
 script to load pertinent data for a given protein
 and perform some sanity checks
@@ -27,6 +31,16 @@ def enter_protein_mdl_dir(yaml_file, protein):
     os.chdir(cwd)
 
 
+def load_random_traj(yaml_file, protein):
+    yaml_file = load_yaml_file(yaml_file)
+    with enter_protein_data_dir(yaml_file, protein):
+        traj_folder = os.path.join(os.getcwd(),"protein_traj")
+        traj_files = sorted(glob.glob(os.path.join(traj_folder,"*.hdf5" )),
+                        key=keynat)
+        trj = load_traj(yaml_file["base_dir"], protein,
+                        os.path.basename(random.choice(traj_files)))
+    #need just one
+    return trj
 
 def load_traj(base_dir, protein, filename):
     """
