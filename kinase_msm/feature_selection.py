@@ -1,6 +1,7 @@
 from Bio import SeqIO
 import glob
 import os
+import numpy as np
 from multiprocessing import Pool
 from msmbuilder.utils import verboseload, verbosedump
 from kinase_msm.data_loader import load_yaml_file
@@ -20,12 +21,32 @@ def _parse_alignment_file(filename):
         aligned_dict[fasta.id]=fasta.seq.tostring().upper()
     return aligned_dict
 
+def _present_for_all(protein, prt_mapping, prt_seq, aligned_dict):
+    #test to make sure the seq matches up
+    aligned_seq = aligned_dict[protein]
+    assert(prt_seq==[i for i in aligned_seq if i!="_"])
 
-def _map_residue_ind_seq_ind(yaml_file, protein, aligned_dict):
+    result_vector = []
+    #for every index and code
+    for index, code in enumerate(prt_seq):
+        #we get the mapping in the sequence for that code
+        mapped_index = prt_mapping[index]
+        #if all the proteins in the series have the same code at the mapped place, we allow that residue
+        #else we disallow it
+        if np.all([aligned_dict[p][mapped_index]==code for p in aligned_dict.keys()]):
+            result_vector.append(index)
+
+    return result_vector
+
+
+def _map_residue_ind_seq_ind(yaml_file, protein, aligned_seq):
     trj = load_random_traj(yaml_file, protein)
     mapping = {}
-    aligned_seq = aligned_dict[protein]
     seq_index = 0
+    prt_seq = [i.code for i in trj.top.residues]
+    #test to make sure the alignment sequence matches with the protein sequence.
+    #get rid of _ from the alignment to account for additions/deletions.
+    assert(prt_seq==[i for i in aligned_seq if i!="_"])
     for i in range(trj.n_residues):
         while True:
             if trj.top.residue(i).code == aligned_seq[seq_index]:
@@ -36,11 +57,17 @@ def _map_residue_ind_seq_ind(yaml_file, protein, aligned_dict):
                 seq_index += 1
                 continue
 
-    return mapping
+    return mapping, prt_seq
 
 
 def _get_common_residues(yaml_file, aligned_dict):
-
+    #for every protein in the list
+    result_dict={}
+    for protein in yaml_file["protein_list"]:
+        #get the mapping
+        aligned_seq = aligned_dict[protein]
+        prt_mapping, prt_seq = _map_residue_ind_seq_ind(yaml_file, protein, aligned_seq)
+        result_dict[protein] = _present_for_all(protein, prt_mapping, prt_seq, aligned_dict)
     raise NotImplementedError("Not yet")
 
 def _get_common_features(yaml_file, featurizer, dict_common_res):

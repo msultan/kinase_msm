@@ -1,10 +1,8 @@
-from kinase_msm.feature_selection import series_feature_slicer, _map_residue_ind_seq_ind
+from kinase_msm.feature_selection import series_feature_slicer, _map_residue_ind_seq_ind,_present_for_all
 from mdtraj.utils.contextmanagers import enter_temp_directory
 from kinase_msm.data_loader import enter_protein_data_dir, load_yaml_file, load_random_traj
 from kinase_msm.series_setup import setup_series_analysis
 from test_pipeline import create_fake_data
-from nose.tools import with_setup
-from test_convert_series import _setup_test, _cleanup_test
 import os, glob
 from msmbuilder.utils import verboseload, verbosedump
 
@@ -54,7 +52,7 @@ def test_slicer():
                     assert (expected_file==written_file).all()
     return
 
-@with_setup(_setup_test, _cleanup_test)
+
 def test_map_residue_seq_no_insert():
     yaml_file = load_yaml_file(os.path.join(base_dir,"mdl_dir","project.yaml"))
     aligned_dict={}
@@ -65,8 +63,8 @@ def test_map_residue_seq_no_insert():
 
         expected[protein] = [i.index for i in t.top.residues]
         aligned_dict[protein] = [i.code for i in t.top.residues]
-
-        actual=_map_residue_ind_seq_ind(yaml_file, protein, aligned_dict)
+        aligned_seq = aligned_dict[protein]
+        actual,_ =_map_residue_ind_seq_ind(yaml_file, protein, aligned_seq)
 
         assert expected[protein] == list(actual.values())
 
@@ -82,8 +80,8 @@ def test_map_residue_seq_with_insert():
 
         expected[protein] = [i.index+3 for i in t.top.residues]
         aligned_dict[protein] = list("___")+ [i.code for i in t.top.residues]
-
-        actual=_map_residue_ind_seq_ind(yaml_file, protein, aligned_dict)
+        aligned_seq = aligned_dict[protein]
+        actual,_ =_map_residue_ind_seq_ind(yaml_file, protein, aligned_seq)
         assert expected[protein] == list(actual.values())
 
     return
@@ -102,8 +100,8 @@ def test_map_residue_seq_with_insert_after_10():
         aligned_dict[protein] = [i.code for i in t.top.residues][:10]+\
                                 list("___")+ \
                                 [i.code for i in t.top.residues][10:]
-
-        actual=_map_residue_ind_seq_ind(yaml_file, protein, aligned_dict)
+        aligned_seq = aligned_dict[protein]
+        actual,_ =_map_residue_ind_seq_ind(yaml_file, protein, aligned_seq)
         assert expected[protein] == list(actual.values())
 
     return
@@ -121,11 +119,11 @@ def test_map_residue_seq_with_insert_at_end():
 
         aligned_dict[protein] = [i.code for i in t.top.residues]+list("___")
 
-        actual=_map_residue_ind_seq_ind(yaml_file, protein, aligned_dict)
+        aligned_seq = aligned_dict[protein]
+        actual,_ =_map_residue_ind_seq_ind(yaml_file, protein, aligned_seq)
 
         assert expected[protein] == list(actual.values())
     return
-
 
 def test_map_residue_seq_with_two_inserts():
     yaml_file = load_yaml_file(os.path.join(base_dir,"mdl_dir","project.yaml"))
@@ -144,9 +142,94 @@ def test_map_residue_seq_with_two_inserts():
                                 list("__")+ \
                                 [i.code for i in t.top.residues][20:]
 
-        actual=_map_residue_ind_seq_ind(yaml_file, protein, aligned_dict)
+        aligned_seq = aligned_dict[protein]
+        actual,_ =_map_residue_ind_seq_ind(yaml_file, protein, aligned_seq)
         assert expected[protein] == list(actual.values())
 
+    return
+
+def test_present_for_all_same_seq():
+    yaml_file = load_yaml_file(os.path.join(base_dir,"mdl_dir","project.yaml"))
+    aligned_dict={}
+    for protein in yaml_file["protein_list"]:
+        t = load_random_traj(yaml_file, protein)
+        aligned_dict[protein] = [i.code for i in t.top.residues]
+
+    for protein in yaml_file["protein_list"]:
+        aligned_seq = aligned_dict[protein]
+        prt_mapping, prt_seq =_map_residue_ind_seq_ind(yaml_file, protein, aligned_seq)
+        assert(len(_present_for_all(protein, prt_mapping, prt_seq, aligned_dict))==len(prt_seq))
+    return
+
+
+def test_present_for_all_2():
+
+    aligned_dict={}
+    prt_seq ={}
+    prt_mapping={}
+
+    prt_seq["p1"] = ["A","S","D","B","A","S","D"]
+    prt_seq["p2"] = ["A","M","D","B","M","A","S","D"]
+
+    aligned_dict["p1"] = ["A","S","D","B","_","_","A","S","D"]
+    aligned_dict["p2"] = ["A","M","D","B","_","M","A","S","D"]
+
+    prt_mapping["p1"] ={0:0,1:1, 2:2, 3:3, 4:6, 5:7,6:8}
+    prt_mapping["p2"] ={0:0,1:1, 2:2, 3:3, 4:5, 5:6,6:7, 7:8}
+
+    p1_res=_present_for_all("p1", prt_mapping["p1"], prt_seq["p1"], aligned_dict)
+    p2_res=_present_for_all("p2", prt_mapping["p2"], prt_seq["p2"], aligned_dict)
+
+    print(p1_res)
+    assert(p1_res==[0,2,3,4,5,6])
+    assert(p2_res==[0,2,3,5,6,7])
+    return
+
+
+def test_present_for_all_3():
+
+    aligned_dict={}
+    prt_seq ={}
+    prt_mapping={}
+
+    prt_seq["p1"] = ["A","S","D","B","A","S","D"]
+    prt_seq["p2"] = ["A","M","D","B","M","A","S","D"]
+
+    aligned_dict["p1"] = ["_","A","S","D","B","_","_","A","S","D"]
+    aligned_dict["p2"] = ["_","A","M","D","B","_","M","A","S","D"]
+
+    prt_mapping["p1"] ={0:1,1:2, 2:3, 3:4, 4:7, 5:8,6:9}
+    prt_mapping["p2"] ={0:1,1:2, 2:3, 3:4, 4:6, 5:7,6:8,7:9}
+
+    p1_res=_present_for_all("p1", prt_mapping["p1"], prt_seq["p1"], aligned_dict)
+    p2_res=_present_for_all("p2", prt_mapping["p2"], prt_seq["p2"], aligned_dict)
+
+    assert(p1_res==[0,2,3,4,5,6])
+    assert(p2_res==[0,2,3,5,6,7])
+    return
+
+
+
+def test_present_for_all_4():
+
+    aligned_dict={}
+    prt_seq ={}
+    prt_mapping={}
+
+    prt_seq["p1"] = ["A","S","D","B","A","S","X"]
+    prt_seq["p2"] = ["A","M","D","B","M","A","S","D"]
+
+    aligned_dict["p1"] = ["_","A","S","D","B","_","_","A","S","X"]
+    aligned_dict["p2"] = ["_","A","M","D","B","_","M","A","S","D"]
+
+    prt_mapping["p1"] ={0:1, 1:2, 2:3, 3:4, 4:7, 5:8,6:9}
+    prt_mapping["p2"] ={0:1, 1:2, 2:3, 3:4, 4:6, 5:7,6:8,7:9}
+
+    p1_res=_present_for_all("p1", prt_mapping["p1"], prt_seq["p1"], aligned_dict)
+    p2_res=_present_for_all("p2", prt_mapping["p2"], prt_seq["p2"], aligned_dict)
+
+    assert(p1_res==[0,2,3,4,5])
+    assert(p2_res==[0,2,3,5,6])
     return
 
 
