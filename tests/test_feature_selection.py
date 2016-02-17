@@ -1,4 +1,5 @@
-from kinase_msm.feature_selection import series_feature_slicer, _map_residue_ind_seq_ind,_present_for_all
+from kinase_msm.feature_selection import series_feature_slicer, \
+    _map_residue_ind_seq_ind,_present_for_all, _get_common_residues
 from mdtraj.utils.contextmanagers import enter_temp_directory
 from kinase_msm.data_loader import enter_protein_data_dir, load_yaml_file, load_random_traj
 from kinase_msm.series_setup import setup_series_analysis
@@ -232,3 +233,13 @@ def test_present_for_all_4():
     assert(p2_res==[0,2,3,5,6])
     return
 
+def test_get_common_residues():
+    yaml_file = load_yaml_file(os.path.join(base_dir,"mdl_dir","project.yaml"))
+    aligned_dict={}
+    for protein in yaml_file["protein_list"]:
+        t = load_random_traj(yaml_file, protein)
+        aligned_dict[protein] = [i.code for i in t.top.residues]
+
+    res_dic =  _get_common_residues(yaml_file, aligned_dict)
+    for protein in yaml_file["protein_list"]:
+        assert(len(res_dic[protein])==t.n_residues)

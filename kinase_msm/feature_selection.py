@@ -68,7 +68,7 @@ def _get_common_residues(yaml_file, aligned_dict):
         aligned_seq = aligned_dict[protein]
         prt_mapping, prt_seq = _map_residue_ind_seq_ind(yaml_file, protein, aligned_seq)
         result_dict[protein] = _present_for_all(protein, prt_mapping, prt_seq, aligned_dict)
-    raise NotImplementedError("Not yet")
+    return result_dict
 
 def _get_common_features(yaml_file, featurizer, dict_common_res):
     raise NotImplementedError("Not yet")
