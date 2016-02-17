@@ -9,3 +9,4 @@ nose
 pandas
 scikit-learn
 pytables
+biopython
