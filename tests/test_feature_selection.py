@@ -232,4 +232,3 @@ def test_present_for_all_4():
     assert(p2_res==[0,2,3,5,6])
     return
 
-
