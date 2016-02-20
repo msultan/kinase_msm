@@ -143,7 +143,7 @@ def bootstrap_one_dim_tic_free_energy(prj,prt,tic_index,n_bins=100 ,lin_spaced_t
 
 
 def one_dim_tic_free_energy(prj, prt, tic_index, n_bins=100 ,
-                        lin_spaced_tic=None, errorbars=False):
+                        lin_spaced_tic=None, errorbars=False, use_mean=True):
     """
     :param prj: Project that the protein is a part of
     :param prt: the protein itself
@@ -188,7 +188,7 @@ def one_dim_tic_free_energy(prj, prt, tic_index, n_bins=100 ,
         return msm_df
 
 
-def two_dim_tic_free_energy(prj, prt, tic_list, x_array=None, y_array=None, n_bins=100):
+def two_dim_tic_free_energy(prj, prt, tic_list, x_array=None, y_array=None, n_bins=100, use_mean=True):
     #basic sanity tests
 
     assert(len(tic_list)==2)
@@ -203,12 +203,14 @@ def two_dim_tic_free_energy(prj, prt, tic_list, x_array=None, y_array=None, n_bi
    #get data
     c_x = prt.tic_dict[tic_list[0]]
     c_y = prt.tic_dict[tic_list[1]]
-    for i in range(prt.n_states_):
-        H,x,y=np.histogram2d(c_x[i],c_y[i],bins=[x_array,y_array],normed=True)
-        H_overall = H_overall + prt.msm.populations_[i]*H
-    H_copy = -0.6*np.log(H_overall)
+    if use_mean:
+        H, H_overall = _two_dim_histogram(prt.bootrap_msm.mapped_populations_mean_,
+                                          c_x,c_y,x_array, y_array)
+    else:
+        H, H_overall = _two_dim_histogram(prt.msm.populations_, c_x, c_y, x_array, y_array)
 
-    return H_copy
+
+    return H_overall
 
 def one_dim_free_energy(prt, x_obs, bins):
     """

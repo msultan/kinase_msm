@@ -27,7 +27,10 @@ def sample_discarded_states(yaml_file, prt_list=None):
     """
     raise NotImplementedError("Sorry :(")
 
-def sample_states(yaml_file, prt):
+def sample_states(yaml_file, prt_name):
+    yaml_file = load_yaml_file(yaml_file)
+    ser = ProteinSeries(yaml_file)
+    prt =Protein(ser, prt_name)
 
     return
 

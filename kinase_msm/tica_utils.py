@@ -1,7 +1,6 @@
 #!/bin/evn python
 from kinase_msm.data_loader import load_yaml_file
 import numpy as np
-import pandas as pd
 import os
 from kinase_msm.mdl_analysis import ProteinSeries, Protein
 from kinase_msm.data_loader import load_frame
@@ -12,10 +11,18 @@ Set of helper scripts for sampling tics
 """
 
 
-def find_nearest(a, a0):
+def find_nearest(a, a0, prev_pt=None):
+
+    b= a[:,:,tic_index]
     "Element in nd array `a` closest to the scalar value `a0`"
-    idx = np.nanargmin(np.abs(a - a0))
-    return a.flat[idx]
+    dis_to_wanted = np.abs(b - a0)
+    if prev_pt is None:
+        idx = np.nanargmin(dis_to_wanted)
+    else:
+        #need to min distance along
+        sorted_dis = np.argsort(dis_to_wanted)
+
+    return b.flat[idx]
 
 
 def pull_frames(yaml_file, protein_name, tic_index, n_frames, key_mapping,
@@ -65,11 +72,40 @@ def pull_frames(yaml_file, protein_name, tic_index, n_frames, key_mapping,
 
     traj_list = []
     actual_tic_val_list=[]
+    prev_pt=None
+    #make a tree
+    tree = KDTree(tics_array[:,:,tic_index])
+
+
     for v,i in enumerate(spaced_points):
-        actual_tic_val = find_nearest(tics_array[:,:,tic_index],i)
-        traj_index, frame_index = np.where(tics_array[:,:,tic_index]==actual_tic_val)
-        traj_name = key_mapping[traj_index[0]]
+        if v==0:
+            #get the closest point to the desired
+            k=1
+            dis, ind = tree.query(i,k)
+            traj_index, frame_index = ind
+            traj_name = key_mapping[traj_index[0]]
+            prev_pt = tica_data[traj_name][frame_index[0]]
+        else:
+            #get a bumch of points closest to desired value
+            k=100
+            dis, ind = tree.query(i,k)
+            tic_dis = []
+            for frm_cand in ind:
+                _traj_index, _frame_index = frm_cand
+                traj_name = key_mapping[_traj_index[0]]
+                current_pt = tica_data[traj_name][_frame_index[0]]
+                tic_dis.append(np.linalg.norm(current_pt-prev_pt))
+            #argsort it from smallest distance to previous pt to largest
+            to_keep = np.argsort(tic_dis)[0]
+            #get that traj_ind and frame_index
+            traj_index, frame_index = ind[to_keep]
+            #update previous pt
+            traj_name = key_mapping[traj_index[0]]
+            prev_pt = tica_data[traj_name][frame_index[0]]
+
+        #write out where we get it from
         actual_tic_val_list.append([v,i, actual_tic_val,traj_name,frame_index[0]])
+        #get the actual
         traj_list.append(load_frame(yaml_file["base_dir"],
                                     protein_name,traj_name,frame_index[0]))
 
