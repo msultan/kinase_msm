@@ -93,7 +93,7 @@ def pull_frames(yaml_file, prt, protein_name, tic_index, n_frames, key_mapping,
         #query for the coordinate
         dis, ind = tree.query(fake_coordinate)
         traj_index, frame_index = ind
-        traj_name = key_mapping[traj_index]
+        traj_name = key_list[traj_index]
         #update previous pt
         prev_pt = tica_data[traj_name][frame_index]
         actual_tic_val = prev_pt[tic_index]
