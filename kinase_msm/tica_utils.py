@@ -25,10 +25,11 @@ def find_nearest(a, a0, prev_pt=None):
     return b.flat[idx]
 
 
-def pull_frames(yaml_file, protein_name, tic_index, n_frames, key_mapping,
+def pull_frames(yaml_file, prt, protein_name, tic_index, n_frames, key_mapping,
                      assignment_matrix, tics_array,tica_data,scheme="linear"):
     """
     :param yaml_file: The loaded yaml file
+    :param prt The prtoein mdl.
     :param protein_name: name of the protein
     :param tic_index: tic index to sample along
     :param n_frames:number of watned frames
@@ -73,41 +74,34 @@ def pull_frames(yaml_file, protein_name, tic_index, n_frames, key_mapping,
     traj_list = []
     actual_tic_val_list=[]
     prev_pt=None
-    #make a tree
-    tree = KDTree(tics_array[:,:,tic_index])
+    #make a tree with all the data
+    key_list = list(prt.tica_data.keys())
 
+    tree = KDTree([prt.tica_data[i] for i in key_list])
+
+    #setup the fake pt
+    fake_coordinate = np.zeros(prt.n_tics_)
 
     for v,i in enumerate(spaced_points):
-        if v==0:
-            #get the closest point to the desired
-            k=1
-            dis, ind = tree.query(i,k)
-            traj_index, frame_index = ind
-            traj_name = key_mapping[traj_index[0]]
-            prev_pt = tica_data[traj_name][frame_index[0]]
-        else:
-            #get a bumch of points closest to desired value
-            k=100
-            dis, ind = tree.query(i,k)
-            tic_dis = []
-            for frm_cand in ind:
-                _traj_index, _frame_index = frm_cand
-                traj_name = key_mapping[_traj_index[0]]
-                current_pt = tica_data[traj_name][_frame_index[0]]
-                tic_dis.append(np.linalg.norm(current_pt-prev_pt))
-            #argsort it from smallest distance to previous pt to largest
-            to_keep = np.argsort(tic_dis)[0]
-            #get that traj_ind and frame_index
-            traj_index, frame_index = ind[to_keep]
-            #update previous pt
-            traj_name = key_mapping[traj_index[0]]
-            prev_pt = tica_data[traj_name][frame_index[0]]
+        fake_coordinate[tic_index] = i
+        if v!=0:
+            #setup fake coordinate
+            for _ti in range(prt.n_tics_):
+                if _ti != tic_index:
+                    fake_coordinate[_ti] = prev_pt[_ti]
 
+        #query for the coordinate
+        dis, ind = tree.query(fake_coordinate)
+        traj_index, frame_index = ind
+        traj_name = key_mapping[traj_index]
+        #update previous pt
+        prev_pt = tica_data[traj_name][frame_index]
+        actual_tic_val = prev_pt[tic_index]
         #write out where we get it from
-        actual_tic_val_list.append([v,i, actual_tic_val,traj_name,frame_index[0]])
+        actual_tic_val_list.append([v,i, actual_tic_val,traj_name,frame_index])
         #get the actual
         traj_list.append(load_frame(yaml_file["base_dir"],
-                                    protein_name,traj_name,frame_index[0]))
+                                    protein_name,traj_name,frame_index))
 
     trj = traj_list[0]
     for i in traj_list[1:]:
@@ -167,7 +161,8 @@ def sample_one_tic(yaml_file,protein_name,tic_index,n_frames, scheme="linear"):
 
 
     yaml_file = load_yaml_file(yaml_file)
-    pull_frames(yaml_file,protein_name,tic_index,n_frames,key_mapping,assignment_matrix,
+    pull_frames(yaml_file,prt, protein_name, tic_index, n_frames,
+                key_mapping, assignment_matrix,
                 tics_array, prt.tica_data,scheme)
     return
 
