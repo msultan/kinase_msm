@@ -3,10 +3,89 @@
 import pandas as pd
 import numpy as np
 from .mdl_analysis import _map_obs_to_state
-
+from scipy.stats import gaussian_kde
 """
 set of helper routines to plot things
 """
+
+def scipy_kde(pr_mdl, pop_vector=None, obs=(0,1),
+              n_samples=30000, bw_method='scott'):
+    """
+    Returns  a opulation weighted kernel. Useful for plotting things
+    :param pr_mdl: The protein mdl to use
+    :param pop_vector: Population vector to use when sampling tic values.
+    Defaults to the msm population vector if None is given.
+    :param obs: Tuple of either dictionaries or ints. Defaults to 0 and 1st tic
+    :param n_samples: The number of samples to use to fit the kde
+    :param bw_method: See scipy gaussian kde.
+    :return: The fitted kernel, and the
+
+    """
+    if pop_vector is None:
+        pop_vector = pr_mdl.msm.populations_
+    states_to_sample = np.random.choice(pr_mdl.n_states_,
+                                        n_samples, p=pop_vector)
+
+    if len(obs)!=2:
+        raise ValueError("Length of observable needs to be 2")
+    if type(obs[0])==int:
+        x_obs = pr_mdl.tic_dict[obs[0]]
+        y_obs = pr_mdl.tic_dict[obs[1]]
+    elif type(obs[0])==dict:
+        x_obs = obs[0]
+        y_obs = obs[1]
+    else:
+        raise ValueError("The obs list needs to either be a list of ints(for tics)"
+                         "or list of state keyed dictionaries")
+
+    _x_val = []
+    _y_val = []
+    b_c, bin_edges = np.histogram(states_to_sample,
+                                  bins=np.arange(pr_mdl.n_states_+1))
+
+    for i in range(pr_mdl.n_states_):
+        _x_val.extend(np.random.choice(x_obs[i],b_c[i]))
+        _y_val.extend(np.random.choice(y_obs[i],b_c[i]))
+    kernel = gaussian_kde(np.vstack((_x_val,_y_val)), bw_method=bw_method)
+
+    return kernel, _x_val, _y_val
+
+def two_dim_free_energy_kde(pr_mdl, limits_dict={}, pop_vector=None,
+                            obs=(0,1), n_samples=30000,
+                            bw_method='scott',
+                            mlp_fct=1.2):
+
+    """
+    Get a free energy landscape for a protein mdl
+    :param pr_mdl: The protein mdl under consideration
+    :param limits_dict: Limits of the tics being considered
+    :param pop_vector: optional population vector. Defaults to the msm pop.
+    :param obs: Tuple of either dictionaries or ints. Defaults to 0 and 1st tic
+    :param n_samples: Number of samples to use. defaults to 30000
+    :param bw_method: Band width method for the kernel. Defaults to "scott"
+    :param mlp_fct: Multiplicative factor for the boundaries to allow the "extra"
+    edges around the data to make smoother kde plots
+    :return: X,Y, and a population weighted free energy map(in kcals/mol). Use
+    contourf(X,Y, f) to plot the results. Limit levels to something reasonable
+    to account to the non-existant tic spaces
+    """
+    kernel, x, y = scipy_kde(pr_mdl, pop_vector, obs, n_samples, bw_method)
+
+    if not limits_dict and type(obs[0])==int:
+        limits_dict = global_tic_boundaries([pr_mdl], obs)
+
+    X = mlp_fct*limits_dict[0]
+    Y = mlp_fct*limits_dict[1]
+    n_p = limits_dict[0].shape[0]
+
+    #make a mesh grid
+    X,Y = np.meshgrid(X,Y)
+    #create a massive n*2 array
+    positions = np.vstack([X.ravel(), Y.ravel()])
+
+    return  X, Y, -.6 * np.log(kernel.evaluate(positions)).reshape(n_p, n_p)
+
+
 
 def global_tic_boundaries(prt_list, tic_list, n_bins=100):
 
