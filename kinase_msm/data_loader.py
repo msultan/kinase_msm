@@ -64,8 +64,8 @@ def load_frame(base_dir, protein, filename, frame_index):
     """
     os.chdir(os.path.join(base_dir, protein))
     filename = os.path.splitext(filename)[0]
-    return mdt.load_frame(filename="./protein_traj/%s.hdf5" % filename,
-                          index=frame_index)
+    return mdt.load_hdf5(filename="./protein_traj/%s.hdf5" % filename,
+                          frame=frame_index)
 
 
 def _sanity_test(base_dir, protein, msm_mdl, tica_data, kmeans_mdl, assignments):
