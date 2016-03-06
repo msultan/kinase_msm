@@ -11,7 +11,7 @@ from msmbuilder.featurizer import DihedralFeaturizer
 
 def featurize_file(job_tuple):
 
-    yaml_file, protein, proj, feat, traj_file,stride = job_tuple
+    yaml_file, protein, feat, traj_file,stride = job_tuple
     yaml_file = load_yaml_file(yaml_file)
 
     if feat is None:
@@ -51,12 +51,11 @@ def _check_output_folder_exists(yaml_file, protein, folder_name=None):
 
     return
 
-def featurize_project_wrapper(yaml_file, protein, proj, feat=None, stride=1, view=None):
+def featurize_project_wrapper(yaml_file, protein, feat=None, stride=1, view=None):
     """
     Wrapper function for featurizing project.
     :param yaml_file: The yaml file to work with
     :param protein: Protein Name
-    :param proj: Project name
     :param feat: Featurization obj. If none, it defaults to
     phi, psi and chi1. Should support a describe_features attribute
     :param view: ipython view or pool view to parallelize over.
@@ -74,7 +73,7 @@ def featurize_project_wrapper(yaml_file, protein, proj, feat=None, stride=1, vie
     print("Found %d files for featurization in %s"
           %(len(traj_files), traj_folder))
 
-    jobs = [(yaml_file, protein, proj, feat, traj_file, stride) for traj_file in traj_files]
+    jobs = [(yaml_file, protein, feat, traj_file, stride) for traj_file in traj_files]
 
     result = view.map(featurize_file, jobs)
 

@@ -20,6 +20,5 @@ def featurize_series(yaml_file, ip_view, protein_list = None):
         protein_list = yaml_file["protein_list"]
 
     for protein in protein_list:
-        for proj in yaml_file["project_dict"][protein]:
-            featurize_project_wrapper(yaml_file, protein,proj, None, 1, ip_view)
+        featurize_project_wrapper(yaml_file, protein, None, 1, ip_view)
     return
