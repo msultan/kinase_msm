@@ -29,8 +29,7 @@ def test_dihedral_feat():
     for prt in ["kinase_1", "kinase_2"]:
         print(prt)
         prj = yaml_file["project_dict"][prt][0]
-        featurize_project_wrapper(yaml_file, prt, prj,
-                                  feat=None, stride=1, view=pool)
+        featurize_project_wrapper(yaml_file, prt, feat=None, stride=1, view=pool)
 
         feat = DihedralFeaturizer(types=['phi', 'psi','chi1'])
         flist = glob.glob(os.path.join(base_dir, prt , "protein_traj/*.hdf5"))
