@@ -7,6 +7,7 @@ from msmbuilder.dataset import _keynat as keynat
 from mdtraj.formats.hdf5 import HDF5TrajectoryFile
 from mdtraj.utils import six
 import mdtraj as md
+import subprocess
 from mdtraj.utils.contextmanagers import enter_temp_directory
 from .data_loader import load_yaml_file
 
@@ -98,9 +99,10 @@ def _traj_loader(filename, top):
     if os.path.isdir(filename):
         return md.load("%s/positions.xtc"%filename, top=top)
     elif filename.endswith(".bz2"):
-        archive = tarfile.open(filename, mode='r:bz2')
-        archive.extract("positions.xtc")
-        return md.load("positions.xtc", top=top)
+        with enter_temp_directory():
+            subprocess.call(["tar", "-xjf", "%s"%filename])
+            trj = md.load("positions.xtc", top=top)
+        return trj
     else:
         raise Exception("%s is neither a folder nor a tar.bz2 file")
     return
