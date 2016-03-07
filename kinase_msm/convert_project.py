@@ -10,6 +10,7 @@ import mdtraj as md
 import subprocess
 from mdtraj.utils.contextmanagers import enter_temp_directory
 from .data_loader import load_yaml_file
+import warnings
 
 class HDF5TrajectoryFileWrapper():
     def __init__(self,file):
@@ -101,6 +102,8 @@ def _traj_loader(filename, top):
     elif filename.endswith(".bz2"):
         subprocess.call(["tar", "-xjf", "%s"%filename])
         return md.load("positions.xtc", top=top)
+    elif filename.endswith(".bz2.0"):
+        warnings.warn("Found backup filename %s"%filename)
     else:
         raise Exception("%s is neither a folder nor a tar.bz2 file")
     return
