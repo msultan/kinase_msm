@@ -99,8 +99,10 @@ def _traj_loader(filename, top):
     if os.path.isdir(filename):
         return md.load("%s/positions.xtc"%filename, top=top)
     elif filename.endswith(".bz2"):
-        subprocess.call(["tar", "-xjf", "%s"%filename])
-        return md.load("positions.xtc", top=top)
+        with enter_temp_directory():
+            subprocess.call(["tar", "-xjf", "%s"%filename])
+            trj = md.load("positions.xtc", top=top)
+        return trj
     else:
         raise Exception("%s is neither a folder nor a tar.bz2 file")
     return
