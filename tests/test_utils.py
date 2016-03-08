@@ -32,12 +32,14 @@ def _test_tic_sampling(yaml_file, protein_name, tic_list, n_frames, scheme):
         traj_top = os.path.join(base_dir,yaml_file["mdl_dir"],
                                 protein_name, "prot.pdb")
         tica_traj = mdt.load(traj_path,top=traj_top)
+        print(tica_traj.n_frames)
         feat = DihedralFeaturizer(types=['phi', 'psi','chi1'])
 
         f = feat.partial_transform(tica_traj)
         t_f = np.round(prt.tica_mdl.transform([f]))
 
         #check that the tic goes from min to max
+        print("Look here",t_f[0])
         assert t_f[0][0][tic_index] <= t_f[0][-1][tic_index]
         all_vals = []
         for traj_tica_data in prt.tica_data.values():

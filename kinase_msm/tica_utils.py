@@ -1,5 +1,5 @@
 #!/bin/evn python
-from kinase_msm.data_loader import load_yaml_file
+from kinase_msm.data_loader import load_yaml_file, enter_protein_mdl_dir
 import numpy as np
 import os
 from kinase_msm.mdl_analysis import ProteinSeries, Protein
@@ -10,6 +10,88 @@ from msmbuilder.utils.nearest import KDTree
 Set of helper scripts for sampling tics
 """
 
+def sample_dimension(data, dimension, n_frames, scheme="linear"):
+    """Function to sample a dimension of the data
+    using one of 3 schemes. All other dimensions are ignored.
+
+    Parameters
+    ----------
+    data : list of lists
+        List of low dimensional data(output of tica)
+    dimension : int
+        dimension to sample on
+    n_frames: int
+        Number of frames required
+    scheme: string
+        One of either "linear", "random" or "edges". Linear
+        samples the tic linearly, random samples randomly
+        thereby taking approximate free energies into account,
+        and edges samples the edges of the tic only.
+
+    Returns
+    -------
+       list of tuples where first number is the trajectory index and
+       second is the frame index
+    """
+    d_data = [i[:,dimension][:,np.newaxis] for i in data]
+
+    #sort it because all three sampling schemes use it
+
+    all_vals = []
+    for i in d_data:
+        all_vals.extend(i.flatten())
+    all_vals = np.sort(all_vals)
+
+    #get lineraly placed points
+    if scheme=="linear":
+        max_val = all_vals[-1]
+        min_val = all_vals[0]
+        spaced_points = np.linspace(min_val, max_val, n_frames)
+
+    elif scheme=="random":
+        spaced_points = np.sort(np.random.choice(all_vals, n_frames))
+
+    elif scheme=="edge":
+        _cut_point = np.int(n_frames / 2)
+        spaced_points = np.hstack((all_vals[:_cut_point], all_vals[-_cut_point:]))
+    else:
+        raise ValueError("Scheme has be to one of linear, random or edge")
+
+    tree = KDTree(d_data)
+
+    return_vec = []
+    for pt in spaced_points:
+        dis, ind = tree.query([pt])
+        return_vec.append(ind)
+
+    return return_vec
+
+def sample_region(data, pt_dict, n_frames,):
+    """Function to sample a region of the data.
+
+    Parameters
+    ----------
+    data : list of lists
+        List of low dimensional data(output of tica)
+    pt_dict : dict
+        Dictionary where the keys are the dimensions and the
+        value is the value of the dimension.
+        pt = {0:0.15, 4:0.2}
+    n_frames: int
+        Number of frames required
+
+    Returns
+    -------
+       list of tuples where first number is the trajectory index and
+       second is the frame index
+    """
+    dimensions = list(pt_dict.keys())
+    d_data = [i[:, dimensions] for i in data]
+
+    tree = KDTree(d_data)
+    pt = [pt_dict[i] for i in dimensions]
+    dis, ind = tree.query(pt, n_frames)
+    return ind
 
 def find_nearest(a, a0, prev_pt=None):
 
@@ -24,20 +106,29 @@ def find_nearest(a, a0, prev_pt=None):
 
     return b.flat[idx]
 
+def _frame_loader(yaml_file, prt, key_list, indices, save_trj, fname=None):
+    traj_list=[]
+    for ind in indices:
+        traj_index, frame_index = ind
+        traj_name = key_list[traj_index]
+        traj_list.append(load_frame(yaml_file["base_dir"],
+                                    prt.name, traj_name, frame_index))
 
-def pull_frames(yaml_file, prt, protein_name, tic_index, n_frames, key_mapping,
-                     assignment_matrix, tics_array,tica_data,scheme="linear"):
+    trj = traj_list[0] + traj_list[1:]
+    if save_trj and fname is not None:
+        with enter_protein_mdl_dir(yaml_file, prt.name):
+            trj.save_xtc("%s"%fname)
+            if not os.path.isfile("prot.pdb"):
+                trj[0].save_pdb("prot.pdb")
+
+    return trj
+
+def pull_frames(yaml_file, prt, tic_index, n_frames,scheme="linear", save_trj=True):
     """
     :param yaml_file: The loaded yaml file
-    :param prt The prtoein mdl.
-    :param protein_name: name of the protein
+    :param prt The prtein mdl.
     :param tic_index: tic index to sample along
     :param n_frames:number of watned frames
-    :param key_mapping:mapping of len of matrix of assignments to the
-     traj names
-    :param assignment_matrix:matrix of assignment
-    :param tics_array:3d array of all tica daata
-    :param tica_data:Dictionary of tica files
     :param scheme:One of 3
     linear:Samples the tic linearly
     random:Samples the tic randomly
@@ -45,82 +136,19 @@ def pull_frames(yaml_file, prt, protein_name, tic_index, n_frames, key_mapping,
     :return:
     :output: This will write out a log file and a xtc file. The log file will
     contain the values of the tic that were obtained while the xtc file will contain
-    the tic itself.
+    the tic itself. Also returns the trajector obj
     """
 
     #get some statistics about the data
-
-    all_vals = []
-    for traj_tica_data in tica_data.values():
-        all_vals.extend(traj_tica_data[:,tic_index])
-
-    #sort it because all three sampling schemes use it
-    all_vals = np.sort(all_vals)
-    #get lineraly placed points
-    if scheme=="linear":
-        max_tic_movement = all_vals[-1]
-        min_tic_movement = all_vals[0]
-        spaced_points = np.linspace(min_tic_movement, max_tic_movement, n_frames)
-
-    elif scheme=="random":
-        spaced_points = np.sort(np.random.choice(all_vals, n_frames))
-
-    elif scheme=="edge":
-        _cut_point = np.int(n_frames / 2)
-        spaced_points = np.hstack((all_vals[:_cut_point],all_vals[-_cut_point:]))
-    else:
-        raise Exception("Scheme has be to one of linear, random or edge")
-
-    traj_list = []
-    actual_tic_val_list=[]
-    prev_pt=None
-    #make a tree with all the data
     key_list = list(prt.tica_data.keys())
+    data = [prt.tica_data[i] for i in key_list]
+    #get indices
+    indices = sample_dimension(data, tic_index, n_frames, scheme)
+    #load traj
+    fname = "tic%d.xtc"%tic_index
+    trj =_frame_loader(yaml_file, prt, key_list, indices, save_trj,fname)
 
-    tree = KDTree([prt.tica_data[i] for i in key_list])
-
-    #setup the fake pt
-    fake_coordinate = np.zeros(prt.n_tics_)
-
-    for v,i in enumerate(spaced_points):
-        fake_coordinate[tic_index] = i
-        if v!=0:
-            #setup fake coordinate
-            for _ti in range(prt.n_tics_):
-                if _ti != tic_index:
-                    fake_coordinate[_ti] = prev_pt[_ti]
-
-        #query for the coordinate
-        dis, ind = tree.query(fake_coordinate)
-        traj_index, frame_index = ind
-        traj_name = key_list[traj_index]
-        #update previous pt
-        prev_pt = tica_data[traj_name][frame_index]
-        actual_tic_val = prev_pt[tic_index]
-        #write out where we get it from
-        actual_tic_val_list.append([v,i, actual_tic_val,traj_name,frame_index])
-        #get the actual
-        traj_list.append(load_frame(yaml_file["base_dir"],
-                                    protein_name,traj_name,frame_index))
-
-    trj = traj_list[0]
-    for i in traj_list[1:]:
-        trj += i
-
-    save_dir = os.path.join(yaml_file["mdl_dir"],protein_name)
-    #dump the log file
-    with open(os.path.join(save_dir, "tic%d.log"%tic_index),"w") as fout:
-        fout.write("Index Tic Value, Actual Value, TrajName, FrmInd\n")
-        for line in actual_tic_val_list:
-            for item in line:
-                fout.write("%s "%item)
-            fout.write("\n")
-    
-    trj.save_xtc(os.path.join(save_dir,"tic%d.xtc"%tic_index))
-
-    trj[0].save_pdb(os.path.join(save_dir,"prot.pdb"))
-
-    return
+    return trj
 
 def _load_protein_matrices(yaml_file, protein_name):
     """
@@ -155,19 +183,14 @@ def sample_one_tic(yaml_file,protein_name,tic_index,n_frames, scheme="linear"):
     :return: Dumps a tic%d.xtc and tic%d.log for a given
     protein inside its model.
     """
-
-    prj, prt, key_mapping, assignment_matrix,\
-    tics_mapping, tics_array = _load_protein_matrices(yaml_file, protein_name)
-
-
     yaml_file = load_yaml_file(yaml_file)
-    pull_frames(yaml_file,prt, protein_name, tic_index, n_frames,
-                key_mapping, assignment_matrix,
-                tics_array, prt.tica_data,scheme)
-    return
+    prj = ProteinSeries(yaml_file)
+    prt = Protein(prj, protein_name)
+
+    return pull_frames(yaml_file, prt, tic_index, n_frames, scheme)
 
 def sample_tic_region(yaml_file, protein_name, tic_region,
-                      n_frames=50, fname=None):
+                      n_frames=50, fname=None,save_trj=True):
     """
     Helper function for sampling tic in a particular tic_region.
     :param yaml_file: The projects yaml file
@@ -183,32 +206,15 @@ def sample_tic_region(yaml_file, protein_name, tic_region,
     prj = ProteinSeries(yaml_file)
     prt = Protein(prj, protein_name)
 
-    fake_coordinate = np.zeros(prt.n_tics_)
-
-    for i in tic_region.keys():
-        fake_coordinate[i] = tic_region[i]
-
     key_list = list(prt.tica_data.keys())
-    tree = KDTree([prt.tica_data[i] for i in key_list])
-
-    dis, ind = tree.query(fake_coordinate, n_frames)
-
-    traj_list = []
-    for i in ind:
-        t, f = i
-        traj_list.append(load_frame(yaml_file["base_dir"],
-                                    protein_name,key_list[t],f))
-
-    trj = traj_list[0] + traj_list[1:]
-    save_dir = os.path.join(yaml_file["mdl_dir"], protein_name)
+    data = [prt.tica_data[i] for i in key_list]
+    indices = sample_region(data, tic_region, n_frames)
 
     if fname is None:
         fname = "sampled_tic_region.xtc"
+    trj =_frame_loader(yaml_file, prt, key_list, indices, save_trj, fname)
 
-    trj.save_xtc(os.path.join(save_dir,fname))
-    trj[0].save_pdb(os.path.join(save_dir,"prot.pdb"))
-
-    return
+    return trj
 
 
 def sample_for_all_proteins(yaml_file, protein=None, tics=None, n_frames=100,
