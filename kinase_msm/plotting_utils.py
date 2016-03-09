@@ -44,8 +44,10 @@ def scipy_kde(pr_mdl, pop_vector=None, obs=(0,1),
                                   bins=np.arange(pr_mdl.n_states_+1))
 
     for i in range(pr_mdl.n_states_):
-        _x_val.extend(np.random.choice(x_obs[i],b_c[i]))
-        _y_val.extend(np.random.choice(y_obs[i],b_c[i]))
+        #have atleast 1 sample
+        ind = np.random.choice(len(x_obs[i]), np.max((1, b_c[i])))
+        _x_val.extend(np.array(x_obs[i])[ind])
+        _y_val.extend(np.array(y_obs[i])[ind])
     kernel = gaussian_kde(np.vstack((_x_val,_y_val)), bw_method=bw_method)
 
     return kernel, _x_val, _y_val
@@ -73,10 +75,13 @@ def two_dim_free_energy_kde(pr_mdl, limits_dict={}, pop_vector=None,
 
     if not limits_dict and type(obs[0])==int:
         limits_dict = global_tic_boundaries([pr_mdl], obs)
-
-    X = mlp_fct*limits_dict[0]
-    Y = mlp_fct*limits_dict[1]
-    n_p = limits_dict[0].shape[0]
+        X = mlp_fct*limits_dict[obs[0]]
+        Y = mlp_fct*limits_dict[obs[1]]
+        n_p = limits_dict[0].shape[0]
+    else:
+        X = mlp_fct*limits_dict[0]
+        Y = mlp_fct*limits_dict[1]
+        n_p = limits_dict[0].shape[0]
 
     #make a mesh grid
     X,Y = np.meshgrid(X,Y)
