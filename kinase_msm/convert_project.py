@@ -162,7 +162,14 @@ def hdf5_concatenate(job_tuple):
             continue
         with enter_temp_directory():
             print("Processing %s" % filename)
-            trj = _traj_loader(filename,top)
+            #try loading the file
+            try:
+                trj = _traj_loader(filename,top)
+            #if that fails, give up on this clone entirely and move on
+            except:
+                print("Failed at %s "%filename)
+                break
+            #if loading is successful, try adding it
             if (not protein_only) and (not trj_file_wrapper.check_filename(filename)):
                 if trj_file_wrapper.validate_filename(index, filename, filenames):
                     trj_file_wrapper.write_file(filename, trj)
