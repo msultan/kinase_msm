@@ -63,11 +63,12 @@ def test_map_residue_seq_no_insert():
 
         t = load_random_traj(yaml_file, protein)
 
-        expected[protein] = [i.index for i in t.top.residues]
-        aligned_dict[protein] = [i.code for i in t.top.residues]
+        expected[protein] = [i.index for i in t.top.residues if i.is_protein]
+        aligned_dict[protein] = t.top.to_fasta(chain=0)
         aligned_seq = aligned_dict[protein]
         actual,_ =_map_residue_ind_seq_ind(yaml_file, protein, aligned_seq)
-
+        print(list(actual.values()))
+        print(expected[protein])
         assert expected[protein] == list(actual.values())
 
     return
@@ -80,8 +81,8 @@ def test_map_residue_seq_with_insert():
 
         t = load_random_traj(yaml_file, protein)
 
-        expected[protein] = [i.index+3 for i in t.top.residues]
-        aligned_dict[protein] = list("___")+ [i.code for i in t.top.residues]
+        expected[protein] = [i.index+3 for i in t.top.residues if i.is_protein]
+        aligned_dict[protein] = "---"+ t.top.to_fasta(chain=0)
         aligned_seq = aligned_dict[protein]
         actual,_ =_map_residue_ind_seq_ind(yaml_file, protein, aligned_seq)
         assert expected[protein] == list(actual.values())
@@ -97,11 +98,12 @@ def test_map_residue_seq_with_insert_after_10():
         t = load_random_traj(yaml_file, protein)
         #add an insertion AFTER 10 residues. We expect all but the 10 have
 
-        expected[protein] = [i for i in range(10)] + [i+3 for i in range(10, t.n_residues)]
-
-        aligned_dict[protein] = [i.code for i in t.top.residues][:10]+\
-                                list("___")+ \
-                                [i.code for i in t.top.residues][10:]
+        expected[protein] = [i for i in range(10) if t.top.residue(i).code is not None] + \
+                            [i+3 for i in range(10, t.n_residues) if t.top.residue(i).code is not None]
+        prt_code = t.top.to_fasta(chain=0)
+        aligned_dict[protein] = prt_code[:10]+\
+                                "---"+ \
+                                prt_code[10:]
         aligned_seq = aligned_dict[protein]
         actual,_ =_map_residue_ind_seq_ind(yaml_file, protein, aligned_seq)
         assert expected[protein] == list(actual.values())
@@ -117,9 +119,9 @@ def test_map_residue_seq_with_insert_at_end():
         t = load_random_traj(yaml_file, protein)
         #add an insertion AFTER 10 residues. We expect all but the 10 have
 
-        expected[protein] = [i for i in range(t.n_residues)]
+        expected[protein] = [i for i in range(t.n_residues) if t.top.residue(i).code is not None]
 
-        aligned_dict[protein] = [i.code for i in t.top.residues]+list("___")
+        aligned_dict[protein] = t.top.to_fasta(chain=0)+"---"
 
         aligned_seq = aligned_dict[protein]
         actual,_ =_map_residue_ind_seq_ind(yaml_file, protein, aligned_seq)
@@ -135,14 +137,16 @@ def test_map_residue_seq_with_two_inserts():
 
         t = load_random_traj(yaml_file, protein)
         #add an insertion AFTER 10 residues. and then again at 20
-        expected[protein] = [i for i in range(10)] + [i+3 for i in range(10, 20)]+\
-                            [i+5 for i in range(20, t.n_residues)]
+        expected[protein] = [i for i in range(10) if t.top.residue(i).code is not None] + \
+                            [i+3 for i in range(10, 20)  if t.top.residue(i).code is not None]+\
+                            [i+5 for i in range(20, t.n_residues) if t.top.residue(i).code is not None]
 
-        aligned_dict[protein] = [i.code for i in t.top.residues][:10]+\
-                                list("___")+ \
-                                [i.code for i in t.top.residues][10:20]+\
-                                list("__")+ \
-                                [i.code for i in t.top.residues][20:]
+        prt_code = t.top.to_fasta(chain=0)
+        aligned_dict[protein] = prt_code[:10]+\
+                                "---"+ \
+                                prt_code[10:20]+\
+                                "--"+ \
+                                prt_code[20:]
 
         aligned_seq = aligned_dict[protein]
         actual,_ =_map_residue_ind_seq_ind(yaml_file, protein, aligned_seq)
@@ -155,7 +159,7 @@ def test_present_for_all_same_seq():
     aligned_dict={}
     for protein in yaml_file["protein_list"]:
         t = load_random_traj(yaml_file, protein)
-        aligned_dict[protein] = [i.code for i in t.top.residues]
+        aligned_dict[protein] = t.top.to_fasta(chain=0)
 
     for protein in yaml_file["protein_list"]:
         aligned_seq = aligned_dict[protein]
@@ -173,8 +177,8 @@ def test_present_for_all_2():
     prt_seq["p1"] = ["A","S","D","B","A","S","D"]
     prt_seq["p2"] = ["A","M","D","B","M","A","S","D"]
 
-    aligned_dict["p1"] = ["A","S","D","B","_","_","A","S","D"]
-    aligned_dict["p2"] = ["A","M","D","B","_","M","A","S","D"]
+    aligned_dict["p1"] = ["A","S","D","B","-","-","A","S","D"]
+    aligned_dict["p2"] = ["A","M","D","B","-","M","A","S","D"]
 
     prt_mapping["p1"] ={0:0,1:1, 2:2, 3:3, 4:6, 5:7,6:8}
     prt_mapping["p2"] ={0:0,1:1, 2:2, 3:3, 4:5, 5:6,6:7, 7:8}
@@ -197,8 +201,8 @@ def test_present_for_all_3():
     prt_seq["p1"] = ["A","S","D","B","A","S","D"]
     prt_seq["p2"] = ["A","M","D","B","M","A","S","D"]
 
-    aligned_dict["p1"] = ["_","A","S","D","B","_","_","A","S","D"]
-    aligned_dict["p2"] = ["_","A","M","D","B","_","M","A","S","D"]
+    aligned_dict["p1"] = ["-","A","S","D","B","-","-","A","S","D"]
+    aligned_dict["p2"] = ["-","A","M","D","B","-","M","A","S","D"]
 
     prt_mapping["p1"] ={0:1,1:2, 2:3, 3:4, 4:7, 5:8,6:9}
     prt_mapping["p2"] ={0:1,1:2, 2:3, 3:4, 4:6, 5:7,6:8,7:9}
@@ -220,8 +224,8 @@ def test_present_for_all_4():
     prt_seq["p1"] = ["A","S","D","B","A","S","X"]
     prt_seq["p2"] = ["A","M","D","B","M","A","S","D"]
 
-    aligned_dict["p1"] = ["_","A","S","D","B","_","_","A","S","X"]
-    aligned_dict["p2"] = ["_","A","M","D","B","_","M","A","S","D"]
+    aligned_dict["p1"] = ["-","A","S","D","B","-","-","A","S","X"]
+    aligned_dict["p2"] = ["-","A","M","D","B","-","M","A","S","D"]
 
     prt_mapping["p1"] ={0:1, 1:2, 2:3, 3:4, 4:7, 5:8,6:9}
     prt_mapping["p2"] ={0:1, 1:2, 2:3, 3:4, 4:6, 5:7,6:8,7:9}
@@ -238,11 +242,12 @@ def test_get_common_residues():
     aligned_dict={}
     for protein in yaml_file["protein_list"]:
         t = load_random_traj(yaml_file, protein)
-        aligned_dict[protein] = [i.code for i in t.top.residues]
+        aligned_dict[protein] = t.top.to_fasta(chain=0)
 
     res_dic =  _get_common_residues(yaml_file, aligned_dict)
     for protein in yaml_file["protein_list"]:
-        assert(len(res_dic[protein])==t.n_residues)
+        print(len(res_dic[protein]),t.n_residues)
+        assert(len(res_dic[protein])==len(t.top.to_fasta(chain=0)))
 
     return
 
@@ -251,7 +256,7 @@ def test_get_common_features():
     aligned_dict={}
     for protein in yaml_file["protein_list"]:
         t = load_random_traj(yaml_file, protein)
-        aligned_dict[protein] = [i.code for i in t.top.residues]
+        aligned_dict[protein] = t.top.to_fasta(chain=0)
 
     common_res_dic =  _get_common_residues(yaml_file, aligned_dict)
 
@@ -269,8 +274,7 @@ def test_get_common_features_2():
     aligned_dict={}
     for protein in yaml_file["protein_list"]:
         t = load_random_traj(yaml_file, protein)
-        print([t.top.residue(i).name for i in range(5)])
-        aligned_dict[protein] = [i.code for i in t.top.residues]
+        aligned_dict[protein] = t.top.to_fasta(chain=0)
 
     common_res_dic =  _get_common_residues(yaml_file, aligned_dict)
     #lets get rid of last few residues
