@@ -28,20 +28,28 @@ def _present_for_all(protein, prt_mapping, prt_seq, aligned_dict):
     #test to make sure the seq matches up
     aligned_seq = aligned_dict[protein]
     prt_seq = ''.join(prt_seq)
-    print(prt_seq)
-    print(''.join([i for i in aligned_seq if i!="-"]))
     assert(prt_seq==''.join([i for i in aligned_seq if i!="-"]))
 
     result_vector = []
     #for every index and code
-    for index, code in enumerate(prt_seq):
-        #we get the mapping in the sequence for that code
-        mapped_index = prt_mapping[index]
-        #if all the proteins in the series have the same code at the mapped place, we allow that residue
-        #else we disallow it
-        if np.all([aligned_dict[p][mapped_index]==code for p in aligned_dict.keys()]):
-            result_vector.append(index)
 
+    max_length = max([len(i) for i in aligned_dict.values()])
+
+    #for that position in the alignment
+    position = 0
+    while position < max_length:
+        possible_codes = set([aligned_dict[p][position] for p in aligned_dict.keys()])
+        print(possible_codes)
+        # if we find a insertion, we skip the that and the next residue
+        if "-" in possible_codes:
+            position += 1
+            continue
+        # if only one code there.
+        prev_codes = set([aligned_dict[p][position-1] for p in aligned_dict.keys()])
+        if len(possible_codes)==1 and ("-" not in prev_codes):
+            index = [key for key in prt_mapping.keys() if prt_mapping[key]==position][0]
+            result_vector.append(index)
+        position += 1
     return result_vector
 
 
@@ -60,7 +68,6 @@ def _map_residue_ind_seq_ind(yaml_file, protein, aligned_seq):
                 seq_index += 1
                 break
             else:
-                print()
                 seq_index += 1
                 continue
 
@@ -172,3 +179,22 @@ def series_feature_slicer(yaml_file, dict_feat_ind=None,
     _feature_slicer(yaml_file, dict_feat_ind, folder_name, view)
 
     return
+
+
+
+def test_series_slicer(yaml_file, folder_name="sliced_feature_dir"):
+    yaml_file = load_yaml_file(yaml_file)
+
+    df_dict={}
+    for protein in yaml_file["protein_list"]:
+        with enter_protein_data_dir(yaml_file, protein):
+            df_dict[protein] = verboseload(os.path.join(os.getcwd(),
+                folder_name,"feature_descriptor.h5"))
+    for ind,protein in enumerate(yaml_file["protein_list"]):
+        for ind2, protein2 in enumerate(yaml_file["protein_list"]):
+            assert (df_dict[protein].resname==
+                    df_dict[protein2].resname).all()
+
+    return
+
+

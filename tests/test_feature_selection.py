@@ -176,7 +176,7 @@ def test_present_for_all_2():
 
     prt_seq["p1"] = ["A","S","D","B","A","S","D"]
     prt_seq["p2"] = ["A","M","D","B","M","A","S","D"]
-
+                         # 0  1   2   3   4   5   6   7    8   9
     aligned_dict["p1"] = ["A","S","D","B","-","-","A","S","D"]
     aligned_dict["p2"] = ["A","M","D","B","-","M","A","S","D"]
 
@@ -187,8 +187,8 @@ def test_present_for_all_2():
     p2_res=_present_for_all("p2", prt_mapping["p2"], prt_seq["p2"], aligned_dict)
 
     print(p1_res)
-    assert(p1_res==[0,2,3,4,5,6])
-    assert(p2_res==[0,2,3,5,6,7])
+    assert(p1_res==[0,2,3,5,6])
+    assert(p2_res==[0,2,3,6,7])
     return
 
 
@@ -209,9 +209,10 @@ def test_present_for_all_3():
 
     p1_res=_present_for_all("p1", prt_mapping["p1"], prt_seq["p1"], aligned_dict)
     p2_res=_present_for_all("p2", prt_mapping["p2"], prt_seq["p2"], aligned_dict)
-
-    assert(p1_res==[0,2,3,4,5,6])
-    assert(p2_res==[0,2,3,5,6,7])
+    print(p1_res)
+    print(p2_res)
+    assert(p1_res==[2,3,5,6])
+    assert(p2_res==[2,3,6,7])
     return
 
 
@@ -223,7 +224,7 @@ def test_present_for_all_4():
 
     prt_seq["p1"] = ["A","S","D","B","A","S","X"]
     prt_seq["p2"] = ["A","M","D","B","M","A","S","D"]
-
+                        # 0    1  2    3   4  5   6   7   8   9
     aligned_dict["p1"] = ["-","A","S","D","B","-","-","A","S","X"]
     aligned_dict["p2"] = ["-","A","M","D","B","-","M","A","S","D"]
 
@@ -233,8 +234,8 @@ def test_present_for_all_4():
     p1_res=_present_for_all("p1", prt_mapping["p1"], prt_seq["p1"], aligned_dict)
     p2_res=_present_for_all("p2", prt_mapping["p2"], prt_seq["p2"], aligned_dict)
 
-    assert(p1_res==[0,2,3,4,5])
-    assert(p2_res==[0,2,3,5,6])
+    assert(p1_res==[2,3,5])
+    assert(p2_res==[2,3,6])
     return
 
 def test_get_common_residues():
