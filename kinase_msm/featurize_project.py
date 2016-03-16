@@ -30,7 +30,7 @@ def featurize_file(job_tuple):
     feat_descriptor = os.path.join(output_folder, "feature_descriptor.h5")
     try:
         trj = mdt.load(traj_file)
-    except tables.exceptions.NoSuchNodeError:
+    except NoSuchNodeError:
         warnings.warn("Removing %s because of misformed trajectory"%traj_file)
         os.remove(traj_file)
         return
