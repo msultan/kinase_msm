@@ -7,6 +7,7 @@ from kinase_msm.data_loader import load_yaml_file
 from msmbuilder.dataset import _keynat as keynat
 from msmbuilder.utils import verbosedump
 import pandas as pd
+import warnings
 from msmbuilder.featurizer import DihedralFeaturizer
 
 def featurize_file(job_tuple):
@@ -27,8 +28,13 @@ def featurize_file(job_tuple):
     output_fname = os.path.join(output_folder, traj_name+".jl")
 
     feat_descriptor = os.path.join(output_folder, "feature_descriptor.h5")
+    try:
+        trj = mdt.load(traj_file)
+    except tables.exceptions.NoSuchNodeError:
+        warnings.warn("Removing %s because of misformed trajectory"%traj_file)
+        os.remove(traj_file)
+        return
 
-    trj = mdt.load(traj_file)
     features = feat.partial_transform(trj)
     verbosedump(features, output_fname)
 
