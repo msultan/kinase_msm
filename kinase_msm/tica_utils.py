@@ -269,7 +269,7 @@ def _map_tic_component(tic_component, df, trj):
     #over all features
     for i in df.iterrows():
         #over all every residue in that feature
-        for j in i[1]["resid"]:
+        for j in i[1]["resids"]:
             #add to running total
             residue_importance_vector[0, j] += abs(tic_component[i[0]])
 

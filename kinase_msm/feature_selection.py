@@ -101,7 +101,7 @@ def _get_common_features(yaml_file, featurizer, dict_common_res, save_df=True):
         df = pd.DataFrame(featurizer.describe_features(trj))
 
         f_ind = np.where(np.array([set(i).issubset(allowed_residue_ind)
-                              for i in df["resid"]]) == True)[0]
+                              for i in df["resids"]]) == True)[0]
 
         result_dict[protein] = f_ind
         if save_df:
