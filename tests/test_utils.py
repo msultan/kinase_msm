@@ -127,6 +127,6 @@ def test_map_tic_component():
     assert len(r_i[0]) == trj.n_residues
 
     #spot check residue 0
-    df2 = pd.DataFrame([i[1] for i in df.iterrows() if (i[1]["resid"]==0).any()])
+    df2 = pd.DataFrame([i[1] for i in df.iterrows() if 0 in i[1]["resids"]])
     r0_imp = np.sum(abs(t_c[df2.index]))
     assert r0_imp==r_i[0,0]
