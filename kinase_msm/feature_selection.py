@@ -229,8 +229,8 @@ def test_series_slicer(yaml_file, folder_name="sliced_feature_dir"):
                 folder_name,"feature_descriptor.h5"))
     for ind,protein in enumerate(yaml_file["protein_list"]):
         for ind2, protein2 in enumerate(yaml_file["protein_list"]):
-            assert (df_dict[protein].resname==
-                    df_dict[protein2].resname).all()
+            assert (df_dict[protein].resnames==
+                    df_dict[protein2].resnames).all()
 
     return
 
