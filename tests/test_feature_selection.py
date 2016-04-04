@@ -245,7 +245,7 @@ def test_get_common_residues():
         t = load_random_traj(yaml_file, protein)
         aligned_dict[protein] = t.top.to_fasta(chain=0)
 
-    res_dic =  _get_common_residues(yaml_file, aligned_dict)
+    res_dic,prt_seq =  _get_common_residues(yaml_file, aligned_dict)
     for protein in yaml_file["protein_list"]:
         print(len(res_dic[protein]),t.n_residues)
         assert(len(res_dic[protein])==len(t.top.to_fasta(chain=0)))
@@ -259,10 +259,8 @@ def test_get_common_features():
         t = load_random_traj(yaml_file, protein)
         aligned_dict[protein] = t.top.to_fasta(chain=0)
 
-    common_res_dic =  _get_common_residues(yaml_file, aligned_dict)
-
     f= DihedralFeaturizer()
-    common_feature_dic = _get_common_features(yaml_file,f, common_res_dic, False)
+    common_feature_dic,_ = _get_common_features(yaml_file,f, aligned_dict, False)
     for protein in yaml_file["protein_list"]:
         t = load_random_traj(yaml_file, protein)
         assert(len(common_feature_dic[protein])==f.transform(t)[0].shape[1])
@@ -277,19 +275,7 @@ def test_get_common_features_2():
         t = load_random_traj(yaml_file, protein)
         aligned_dict[protein] = t.top.to_fasta(chain=0)
 
-    common_res_dic =  _get_common_residues(yaml_file, aligned_dict)
-    #lets get rid of last few residues
-    for protein in yaml_file["protein_list"]:
-        common_res_dic[protein] = common_res_dic[protein][:5]
-        print(common_res_dic[protein])
-
     f= DihedralFeaturizer(types=['phi','psi','chi1'])
-    common_feature_dic = _get_common_features(yaml_file,f, common_res_dic, False)
-
-    for protein in yaml_file["protein_list"]:
-        t = load_random_traj(yaml_file, protein)
-        # 4 phi, 4 psi and 4 chi1(one of the 5 has no chi1).
-        # times 2 to account for sincos transoform
-        assert(len(common_feature_dic[protein])==(4+4+4)*2)
-
+    common_feature_dic,_ = _get_common_features(yaml_file,f, aligned_dict, False)
+    assert(len(set([len(common_feature_dic[i]) for i in yaml_file["protein_list"]]))==1)
     return

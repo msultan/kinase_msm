@@ -9,7 +9,7 @@ from kinase_msm.data_loader import load_yaml_file
 from kinase_msm.featurize_project import _check_output_folder_exists
 from kinase_msm.data_loader import load_random_traj, \
     enter_protein_data_dir, enter_protein_mdl_dir
-
+from sklearn.base import clone
 """
 Set of routines to select common features amongst
 proteins based upon their sequence similarity.
@@ -82,36 +82,73 @@ def _get_common_residues(yaml_file, aligned_dict):
         aligned_seq = aligned_dict[protein]
         prt_mapping, prt_seq = _map_residue_ind_seq_ind(yaml_file, protein, aligned_seq)
         result_dict[protein] = _present_for_all(protein, prt_mapping, prt_seq, aligned_dict)
-    return result_dict
+    return result_dict, prt_mapping
 
 
-def _get_common_features(yaml_file, featurizer, dict_common_res, save_df=True):
+def _get_common_features(yaml_file, featurizer, aligned_dict,save_df=True):
     """
     Function to get the common features across protein using the common residues.
     can optionally save the pandas data to the mdl_dir
     :param yaml_file: The protein yaml_file
     :param featurizer: featurizer object used.
-    :param dict_common_res: dict of common residues indices for each protein
+    :param prt_mapping: Mapping of each residue to its sequence
+    :param aligned_dict : Dictionary of alignments for each protein
     :return:
     """
     result_dict = {}
+    df_dict={}
     for protein in yaml_file["protein_list"]:
+        print(protein)
+        #reset the featurizer
+        featurizer = clone(featurizer)
         trj = load_random_traj(yaml_file, protein)
-        allowed_residue_ind = dict_common_res[protein]
         df = pd.DataFrame(featurizer.describe_features(trj))
+        prt_mapping, prt_seq = _map_residue_ind_seq_ind(yaml_file, protein,
+                                                        aligned_dict[protein])
+        feature_vec =[]
+        #for every feature
+        for i in df.iterrows():
+            #get the index and the feature itself
+            feature_ind, feature_dict = i
+            all_res_in_algn = []
+            mapped_index_list=[]
+            for aa_ind in feature_dict["resids"]:
+                aa_code = prt_seq[aa_ind]
+                #make sure we have the same residue
+                assert(trj.top.residue(aa_ind).code==aa_code)
+                #get the mapping for that aa to the main alignment
+                mapped_index = prt_mapping[aa_ind]
+                #for every protein in the alignment, check if we have the same residue
+                #at the same position
+                all_res_in_algn.append(np.alltrue([aligned_dict[prt][mapped_index]==aa_code
+                                          for prt in yaml_file["protein_list"]]))
+                mapped_index_list.append(mapped_index)
 
-        f_ind = np.where(np.array([set(i).issubset(allowed_residue_ind)
-                              for i in df["resids"]]) == True)[0]
 
-        result_dict[protein] = f_ind
+            #to account for additions and deletions, we check if the difference between
+            #the mapping and the actual residue codes is the same.
+            mapped_index_difference = [x - mapped_index_list[i - 1]
+                                       for i, x in enumerate(mapped_index_list) if i > 0]
+            resid_index_difference = [x - feature_dict["resids"][i - 1]
+                                       for i, x in enumerate(feature_dict["resids"]) if i > 0]
+            if not np.all(mapped_index_difference==resid_index_difference):
+                all_res_in_algn.append(False)
+
+
+            if np.alltrue(all_res_in_algn):
+                feature_vec.append(feature_ind)
+
+        df_dict[protein] = df.iloc[feature_vec]
+        result_dict[protein] = feature_vec
+
         if save_df:
-            new_df = df.iloc[f_ind]
+            new_df = df.iloc[feature_vec]
             with enter_protein_mdl_dir(yaml_file, protein):
                 verbosedump(new_df, os.path.join("feature_descriptor.h5"))
             with enter_protein_data_dir(yaml_file, protein):
                 verbosedump(new_df, os.path.join("sliced_feature_dir",
                                                  "feature_descriptor.h5"))
-    return result_dict
+    return result_dict, df_dict
 
 def _slice_file(job_tuple):
     inp_file, feature_ind, output_folder = job_tuple
@@ -172,9 +209,9 @@ def series_feature_slicer(yaml_file, dict_feat_ind=None,
         #load alignment file
         aligned_dict = _parse_alignment_file(yaml_file["alignment_file"])
         #get list of common residue indices
-        dict_common_res = _get_common_residues(yaml_file, aligned_dict)
+        #dict_common_res, prt_mapping = _get_common_residues(yaml_file, aligned_dict)
         #get list of feature indices
-        dict_feat_ind = _get_common_features(yaml_file, featurizer, dict_common_res)
+        dict_feat_ind, df_dict = _get_common_features(yaml_file, featurizer, aligned_dict)
 
     _feature_slicer(yaml_file, dict_feat_ind, folder_name, view)
 
