@@ -16,14 +16,12 @@ def fit_protein_tica(yaml_file):
     mdl_dir = yaml_file["mdl_dir"]
     mdl_params = yaml_file["mdl_params"]
 
-    tica__lag_time = mdl_params["tica__lag_time"]
-    tica__shrinkage = mdl_params["tica__shrinkage"]
-    tica__weighted_transform = mdl_params["tica__weighted_transform"]
-    tica__n_components = mdl_params["tica__n_components"]
+    current_mdl_params={}
+    for i in mdl_params.keys():
+        if i.beginswith("tica__"):
+            current_mdl_params[i.strip("tica__")] = mdl_params[i]
 
-    protein_tica_mdl = tICA(n_components=tica__n_components, lag_time=tica__lag_time,
-                            shrinkage=tica__shrinkage,
-                            weighted_transform=tica__weighted_transform)
+    protein_tica_mdl = tICA(**current_mdl_params)
 
     for protein in yaml_file["protein_list"]:
         print("Fitting to protein %s" % protein)
