@@ -18,7 +18,7 @@ def fit_protein_tica(yaml_file):
 
     current_mdl_params={}
     for i in mdl_params.keys():
-        if i.beginswith("tica__"):
+        if i.startswith("tica__"):
             current_mdl_params[i.strip("tica__")] = mdl_params[i]
 
     protein_tica_mdl = tICA(**current_mdl_params)
