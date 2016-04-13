@@ -6,6 +6,7 @@ import mdtraj as mdt
 from kinase_msm.fit_transform_kinase_series import *
 from kinase_msm.msm_utils import sample_msm_traj
 from kinase_msm.tica_utils import _map_tic_component
+from kinase_msm.msm_utils import sample_state_centroid
 from kinase_msm.mdl_analysis import ProteinSeries, Protein
 from test_convert_series import _setup_test, _cleanup_test
 from nose.tools import with_setup
@@ -130,3 +131,15 @@ def test_map_tic_component():
     df2 = pd.DataFrame([i[1] for i in df.iterrows() if 0 in i[1]["resids"]])
     r0_imp = np.sum(abs(t_c[df2.index]))
     assert r0_imp==r_i[0,0]
+
+
+
+def test_msm_pull_centroid():
+    yaml_file = os.path.join(base_dir,"mdl_dir","project.yaml")
+    ser = ProteinSeries(yaml_file,base_dir)
+    prt = Protein(ser, "kinase_1")
+    trj = sample_state_centroid(yaml_file, prt.name, states='all',
+                                n_frames=2,
+                                output_name="centroids.xtc")
+    assert(trj.n_frames==prt.n_states_*2)
+    assert(os.path.isfile(os.path.join(base_dir,"mdl_dir","kinase_1","centroids.xtc")))
