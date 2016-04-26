@@ -1,7 +1,7 @@
 #!/bin/env python
 
 from __future__ import print_function
-from msmbuilder.decomposition import tICA
+from msmbuilder.decomposition import tICA,SparseTICA
 from msmbuilder.utils import verboseload, verbosedump
 import glob
 from msmbuilder.msm import BayesianMarkovStateModel, MarkovStateModel
@@ -11,8 +11,7 @@ from msmbuilder.cluster import MiniBatchKMeans as KMeans
 from msmbuilder.dataset import _keynat as keynat
 from .data_loader import enter_protein_data_dir, enter_protein_mdl_dir, load_yaml_file
 
-
-def fit_protein_tica(yaml_file):
+def fit_protein_tica(yaml_file,sparse=False):
     mdl_dir = yaml_file["mdl_dir"]
     mdl_params = yaml_file["mdl_params"]
 
@@ -21,7 +20,10 @@ def fit_protein_tica(yaml_file):
         if i.startswith("tica__"):
             current_mdl_params[i.strip("tica__")] = mdl_params[i]
 
-    protein_tica_mdl = tICA(**current_mdl_params)
+    if sparse==True:
+        protein_tica_mdl = SparseTICA(**current_mdl_params)
+    else:
+        protein_tica_mdl = tICA(**current_mdl_params)
 
     for protein in yaml_file["protein_list"]:
         print("Fitting to protein %s" % protein)
