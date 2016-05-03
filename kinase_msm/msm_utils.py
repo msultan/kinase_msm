@@ -10,7 +10,7 @@ from .mdl_analysis import ProteinSeries, Protein
 from msmbuilder.utils.nearest import KDTree
 from .tica_utils import _frame_loader
 
-def _sample_state(jt):
+def _random_sample_state(jt):
     #get where the state exists
     state, assignment_matrix, key_mapping, base_dir, prt_name = jt
     trj, frame = np.where(assignment_matrix==state)
@@ -81,13 +81,17 @@ def sample_state_centroid(yaml_file, prt_name, states='all', n_frames=10, output
 
 
 def sample_msm_traj(yaml_file, prt_name, n_steps, starting_state = None,
-                    fname="msm_traj.xtc"):
+                    fname="msm_traj.xtc",
+                    msm_traj=None,
+                    scheme='random'):
     """
     :param yaml_file: The model's yaml file
     :param prt: The name of the protein mdl
     :param n_steps: The number of markovian frames desired.
     :param starting_state: If None, we start from the most populated state.
     :param fname : The output filename
+    :msm_traj : output of msm.sample_discrete. This is so that if you want
+    you can sample a random trajectory
     :return: Dumps the msm traj.
     """
 
@@ -95,14 +99,16 @@ def sample_msm_traj(yaml_file, prt_name, n_steps, starting_state = None,
     ser = ProteinSeries(yaml_file)
     prt =Protein(ser,prt_name)
 
-    # this returns in original assignment space
-    msm_traj = prt.msm.sample_discrete(state=starting_state, n_steps=n_steps)
+    if msm_traj is None:
+        # this returns in original assignment space
+        msm_traj = prt.msm.sample_discrete(state=starting_state,
+                                           n_steps=n_steps)
     # there we use the original assignment matrix too
     key_mapping, assignment_matrix = create_assignment_matrix(prt.assignments)
 
     jbs =[(state, assignment_matrix, key_mapping, ser.base_dir, prt.name) for state in msm_traj]
     p = Pool(int(cpu_count()/4))
-    trj_list = p.map(_sample_state, jbs)
+    trj_list = p.map(_random_sample_state, jbs)
     print("Done")
     trj = trj_list[0] + trj_list[1:]
 
