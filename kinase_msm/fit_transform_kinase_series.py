@@ -18,7 +18,7 @@ def fit_protein_tica(yaml_file,sparse=False):
     current_mdl_params={}
     for i in mdl_params.keys():
         if i.startswith("tica__"):
-            current_mdl_params[i.strip("tica__")] = mdl_params[i]
+            current_mdl_params[i.split("tica__")[1]] = mdl_params[i]
 
     if sparse==True:
         protein_tica_mdl = SparseTICA(**current_mdl_params)
@@ -73,7 +73,7 @@ def fit_protein_kmeans(yaml_file):
     current_mdl_params={}
     for i in mdl_params.keys():
         if i.startswith("cluster__"):
-            current_mdl_params[i.strip("cluster__")] = mdl_params[i]
+            current_mdl_params[i.split("cluster__")[1]] = mdl_params[i]
 
     kmeans_mdl = KMeans(**current_mdl_params, batch_size = 100*cluster__n_clusters)
     data = []
@@ -115,7 +115,7 @@ def fit_msms(yaml_file):
     current_mdl_params={}
     for i in mdl_params.keys():
         if i.startswith("msm__"):
-            current_mdl_params[i.strip("msm__")] = mdl_params[i]
+            current_mdl_params[i.split("msm__")[1]] = mdl_params[i]
 
 
     for protein in yaml_file["protein_list"]:
