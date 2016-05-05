@@ -69,9 +69,13 @@ def transform_protein_tica(yaml_file):
 def fit_protein_kmeans(yaml_file):
     mdl_dir = yaml_file["mdl_dir"]
     mdl_params = yaml_file["mdl_params"]
-    cluster__n_clusters = mdl_params["cluster__n_clusters"]
 
-    kmeans_mdl = KMeans(cluster__n_clusters,batch_size = 100*cluster__n_clusters)
+    current_mdl_params={}
+    for i in mdl_params.keys():
+        if i.startswith("cluster__"):
+            current_mdl_params[i.strip("cluster__")] = mdl_params[i]
+
+    kmeans_mdl = KMeans(**current_mdl_params, batch_size = 100*cluster__n_clusters)
     data = []
 
     for protein in yaml_file["protein_list"]:
@@ -107,13 +111,18 @@ def transform_protein_kmeans(yaml_file):
 
 def fit_msms(yaml_file):
     mdl_params = yaml_file["mdl_params"]
-    msm__lag_time = mdl_params["msm__lag_time"]
+
+    current_mdl_params={}
+    for i in mdl_params.keys():
+        if i.startswith("msm__"):
+            current_mdl_params[i.strip("msm__")] = mdl_params[i]
+
+
     for protein in yaml_file["protein_list"]:
         with enter_protein_mdl_dir(yaml_file, protein):
             print(protein)
             assignments = verboseload("assignments.pkl")
-            msm_mdl = MarkovStateModel(
-                lag_time=msm__lag_time, verbose=True).fit(
+            msm_mdl = MarkovStateModel(**current_mdl_params).fit(
                 [assignments[i] for i in assignments.keys()])
             verbosedump(msm_mdl, "msm_mdl.pkl")
             fixed_assignments = {}
