@@ -7,7 +7,7 @@ import glob
 from msmbuilder.msm import BayesianMarkovStateModel, MarkovStateModel
 from msmbuilder.msm.validation import BootStrapMarkovStateModel
 import os
-from msmbuilder.cluster import MiniBatchKMeans as KMeans
+from msmbuilder.cluster import MiniBatchKMeans, KMeans
 from msmbuilder.dataset import _keynat as keynat
 from .data_loader import enter_protein_data_dir, enter_protein_mdl_dir, load_yaml_file
 
@@ -66,7 +66,7 @@ def transform_protein_tica(yaml_file):
     return
 
 
-def fit_protein_kmeans(yaml_file):
+def fit_protein_kmeans(yaml_file,mini=True):
     mdl_dir = yaml_file["mdl_dir"]
     mdl_params = yaml_file["mdl_params"]
 
@@ -75,8 +75,11 @@ def fit_protein_kmeans(yaml_file):
         if i.startswith("cluster__"):
             current_mdl_params[i.split("cluster__")[1]] = mdl_params[i]
 
-    current_mdl_params["batch_size"] = 100*current_mdl_params["n_clusters"]
-    kmeans_mdl = KMeans(**current_mdl_params)
+    if mini:
+        current_mdl_params["batch_size"] = 100*current_mdl_params["n_clusters"]
+        kmeans_mdl = MiniBatchKMeans(**current_mdl_params)
+    else:
+        kmeans_mdl = KMeans(**current_mdl_params)
     data = []
 
     for protein in yaml_file["protein_list"]:
