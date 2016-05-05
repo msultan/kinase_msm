@@ -75,7 +75,8 @@ def fit_protein_kmeans(yaml_file):
         if i.startswith("cluster__"):
             current_mdl_params[i.split("cluster__")[1]] = mdl_params[i]
 
-    kmeans_mdl = KMeans(**current_mdl_params, batch_size = 100*current_mdl_params["n_clusters"])
+    current_mdl_params["batch_size"] = 100*current_mdl_params["n_clusters"]
+    kmeans_mdl = KMeans(**current_mdl_params)
     data = []
 
     for protein in yaml_file["protein_list"]:
