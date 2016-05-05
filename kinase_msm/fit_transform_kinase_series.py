@@ -134,7 +134,11 @@ def fit_msms(yaml_file):
 
 def fit_bootstrap(yaml_file,pool=None):
     mdl_params = yaml_file["mdl_params"]
-    msm__lag_time = mdl_params["msm__lag_time"]
+    current_mdl_params={}
+    for i in mdl_params.keys():
+        if i.startswith("msm__"):
+            current_mdl_params[i.split("msm__")[1]] = mdl_params[i]
+
     if "bootstrap__n_samples" in mdl_params.keys():
         bootstrap__n_samples = mdl_params["bootstrap__n_samples"]
     else:
@@ -143,8 +147,8 @@ def fit_bootstrap(yaml_file,pool=None):
         with enter_protein_mdl_dir(yaml_file, protein):
             print(protein)
             assignments = verboseload("assignments.pkl")
-            msm_mdl =BootStrapMarkovStateModel(n_samples=bootstrap__n_samples, n_procs=2,
-                                               msm_args ={'lag_time': msm__lag_time}
+            msm_mdl =BootStrapMarkovStateModel(n_samples= bootstrap__n_samples, n_procs=2,
+                                               msm_args = current_mdl_params
                                                )
             msm_mdl.fit([assignments[i] for i in assignments.keys()], pool=pool)
             verbosedump(msm_mdl, "bootstrap_msm_mdl.pkl")
