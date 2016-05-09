@@ -109,7 +109,7 @@ def find_nearest(a, a0, prev_pt=None):
 def _frame_loader(yaml_file, prt, key_list, indices, save_trj, fname=None):
     traj_list=[]
     #if not an iterator make it
-    if indices.shape==(2,):
+    if type(indices)!=list and indices.shape==(2,):
         indices = [indices]
     for ind in indices:
         traj_index, frame_index = ind
