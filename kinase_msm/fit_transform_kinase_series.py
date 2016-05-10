@@ -63,6 +63,10 @@ def transform_protein_tica(yaml_file):
             with enter_protein_mdl_dir(yaml_file, protein):
                 verbosedump(tica_data, 'tica_data.pkl')
                 print("Done transforming protein %s" % protein)
+
+    # dumping the tica_mdl again since the eigenspectrum might have been calculated. 
+    tica_mdl_path = os.path.join(mdl_dir, "tica_mdl.pkl")
+    verbosedump(protein_tica_mdl, tica_mdl_path)
     return
 
 
