@@ -75,15 +75,11 @@ def two_dim_free_energy_kde(pr_mdl, limits_dict={}, pop_vector=None,
 
     if not limits_dict and type(obs[0])==int:
         limits_dict = global_tic_boundaries([pr_mdl], obs)
-        X = mlp_fct*limits_dict[obs[0]]
-        Y = mlp_fct*limits_dict[obs[1]]
-        n_p = limits_dict[0].shape[0]
-    else:
-        X = mlp_fct*limits_dict[0]
-        Y = mlp_fct*limits_dict[1]
-        n_p = limits_dict[0].shape[0]
+        
+    X = mlp_fct*limits_dict[obs[0]]
+    Y = mlp_fct*limits_dict[obs[1]]
+    n_p = limits_dict[0].shape[0]
 
-    #make a mesh grid
     X,Y = np.meshgrid(X,Y)
     #create a massive n*2 array
     positions = np.vstack([X.ravel(), Y.ravel()])
