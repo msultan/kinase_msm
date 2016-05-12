@@ -330,7 +330,7 @@ def one_dim_free_energy(prt, x_obs, bins):
 
     msm_df.columns=["tic_value","free_energy","protein_name","mdl_index"]
 
-    return
+    return msm_df
 
 def two_dim_free_energy(prt, x_obs, y_obs, bins=None):
     """
