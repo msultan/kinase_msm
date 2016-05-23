@@ -16,6 +16,7 @@ if os.path.isdir("tests"):
 else:
     base_dir = os.path.abspath(os.path.join("./test_data"))
 
+#test to make sure features are normalized.T
 
 
 @with_setup(_setup_test, _cleanup_test)

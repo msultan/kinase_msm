@@ -6,7 +6,6 @@ from kinase_msm.data_loader import load_yaml_file
 from msmbuilder.dataset import _keynat as keynat
 from msmbuilder.utils import verbosedump, verboseload
 import pandas as pd
-import warnings
 from sklearn import preprocessing
 from .featurize_project import _check_output_folder_exists
 from .data_loader import enter_protein_mdl_dir, enter_protein_data_dir
