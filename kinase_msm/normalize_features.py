@@ -10,6 +10,7 @@ from sklearn import preprocessing
 from .featurize_project import _check_output_folder_exists
 from .data_loader import enter_protein_mdl_dir, enter_protein_data_dir
 
+#normalize
 
 
 def normalize_project_series(yaml_file, output_folder="normalized_features",
