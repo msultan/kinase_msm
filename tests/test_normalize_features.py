@@ -33,7 +33,7 @@ def test_normalize_features():
         for i in flist:
             all_data.extend(verboseload(i))
 
-    assert(np.alltrue(np.isclose(np.mean(all_data, axis=1), 0 , atol=1e-1)))
-    assert(np.alltrue(np.isclose(np.std(all_data, axis=1), 1 , atol=0.2)))
+    assert(np.alltrue(np.isclose(np.mean(all_data, axis=1), 0 , atol=0.2)))
+    assert(np.alltrue(np.isclose(np.std(all_data, axis=1), 1 , atol=0.3)))
 
 
