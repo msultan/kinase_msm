@@ -75,13 +75,14 @@ def two_dim_free_energy_kde(pr_mdl, limits_dict={}, pop_vector=None,
 
     if not limits_dict and type(obs[0])==int:
         limits_dict = global_tic_boundaries([pr_mdl], obs)
-    elif type(obs[0])==int:
+
+    if type(obs[0])==int:
         X = mlp_fct*limits_dict[obs[0]]
         Y = mlp_fct*limits_dict[obs[1]]
     else:
         X = mlp_fct*limits_dict[0]
         Y = mlp_fct*limits_dict[1]
-        
+
     n_p = limits_dict[0].shape[0]
 
     X,Y = np.meshgrid(X,Y)
