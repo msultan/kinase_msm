@@ -58,6 +58,6 @@ def normalize_project_series(yaml_file, output_folder="normalized_features",
             for f in flist:
                 res = verboseload(f)
                 res = nrm.transform(res)
-                verbosedump(res,"%s/%s"%(output_folder,os.path.basename(i)))
+                verbosedump(res,"%s/%s"%(output_folder,os.path.basename(f)))
 
     return
