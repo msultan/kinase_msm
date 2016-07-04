@@ -283,4 +283,19 @@ def _map_tic_component(tic_component, df, trj):
 
     return atom_importance_vector, residue_importance_vector
 
+def max_movement(tica_data, index=0,num_wanted=1):
+    """
+    Helper routine to find trajectory that goes the max along any coordinate
+    :param tica_data: Tica data
+    :param index: tIC index , defaults to 0
+    :param number of trajectories wanted
+    :return: list of trajectory names where the first traj
+    has the highest movement in that dimension
+    """
+    diff_list=[]
+    key_list=[]
+    for i in tica_data.keys():
+        diff_list.append(np.max(tica_data[i][:,index]) - np.min(tica_data[i][:,index]))
+        key_list.append(i)
 
+    return [key_list[i] for i in np.argsort(diff_list)[-n_keys:]][::-1]
