@@ -25,7 +25,7 @@ def test_setup_series_analysis():
     project_dict = {"fake_kinase1": ["fake_proj1", "fake_proj2"],
                     "fake_kinase2": ["fake_proj3"]}
     mdl_params = {'tica__n_components': 1, 'tica__lag_time': 2,
-                  'tica__weighted_transform': True, 'tica__shrinkage': 0.01,
+                  'tica__kinetic_mapping': True, 'tica__shrinkage': 0.01,
                   'cluster__n_clusters': 174}
 
     with enter_temp_directory():
@@ -59,7 +59,7 @@ def test_multiple_mdls():
     project_dict = {"fake_kinase1": ["fake_proj1", "fake_proj2"],
                     "fake_kinase2": ["fake_proj3"]}
     mdl_params = {'tica__n_components': 4, 'tica__lag_time': 223,
-                  'tica__weighted_transform': True, 'tica__gamma': 0.0121,
+                  'tica__kinetic_mapping': True, 'tica__gamma': 0.0121,
                   'cluster__n_clusters': 212}
 
     with enter_temp_directory():

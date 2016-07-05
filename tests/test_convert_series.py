@@ -28,7 +28,7 @@ def _setup_test():
                                        "tica__shrinkage": 0.005,
                                        "tica__lag_time": 1,
                                        "tica__n_components": 2,
-                                       "tica__weighted_transform": True},
+                                       "tica__kinetic_mapping": True},
                          )
 
 def _cleanup_test():
