@@ -57,7 +57,7 @@ def _check_output_folder_exists(yaml_file, protein, folder_name=None):
 
     return
 
-def featurize_project_wrapper(yaml_file, protein, feat=None, stride=1, view=None):
+def featurize_project_wrapper(yaml_file, protein, feat=None, stride=1, view=None, protein_only=True):
     """
     Wrapper function for featurizing project.
     :param yaml_file: The yaml file to work with
@@ -73,7 +73,10 @@ def featurize_project_wrapper(yaml_file, protein, feat=None, stride=1, view=None
 
     _check_output_folder_exists(yaml_file, protein)
     #get the paths
-    traj_folder = os.path.join(base_dir, protein, "protein_traj")
+    if protein_only:
+        traj_folder = os.path.join(base_dir, protein, "protein_traj")
+    else:
+        traj_folder = os.path.join(base_dir, protein, "trajectories")
     traj_files = sorted(glob.glob(os.path.join(traj_folder,"*.hdf5" )),
                         key=keynat)
     print("Found %d files for featurization in %s"

@@ -298,4 +298,4 @@ def max_movement(tica_data, index=0,num_wanted=1):
         diff_list.append(np.max(tica_data[i][:,index]) - np.min(tica_data[i][:,index]))
         key_list.append(i)
 
-    return [key_list[i] for i in np.argsort(diff_list)[-n_keys:]][::-1]
+    return [key_list[i] for i in np.argsort(diff_list)[-num_wanted:]][::-1]
