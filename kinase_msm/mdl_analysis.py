@@ -52,6 +52,7 @@ class Protein(object):
         self._tic_dict = None
         self._tic_min = None
         self._tic_max = None
+        self._mlpt_fct = 0.4
 
 
     @property
@@ -83,19 +84,19 @@ class Protein(object):
             self._computed = True
             return tic_dict
 
-    def _get_tic_min(self, mlp_fct=0.30):
+    def _get_tic_min(self):
         '''
         :return: contains a list of the minimum value along every tic coordinate
         '''
         min_val = np.min(np.concatenate(list(self.tica_data.values())),axis=0)
-        return min_val - np.absolute(mlp_fct*min_val)
+        return min_val - np.absolute(self._mlpt_fct*min_val)
 
-    def _get_tic_max(self, mlp_fct=0.30):
+    def _get_tic_max(self):
         """
        :return: contains a list of the max value along every tic coordinate
        """
         max_val = np.max(np.concatenate(list(self.tica_data.values())),axis=0)
-        return max_val + np.absolute(mlp_fct*max_val)
+        return max_val + np.absolute(self._mlpt_fct*max_val)
 
     @property
     def tic_min(self):

@@ -33,6 +33,8 @@ def test_plotting_utils():
         prt1 = Protein(prj, "kinase_1")
         prt2 = Protein(prj, "kinase_2")
 
+        prt1._mlpt_fct = 0.0
+        prt2._mlpt_fct = 0.0
         n_bins = 100
 
         lin_spaced_tic_dict = global_tic_boundaries([prt1, prt2],
