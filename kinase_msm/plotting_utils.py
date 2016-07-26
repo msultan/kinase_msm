@@ -44,7 +44,7 @@ def scipy_kde(pr_mdl, pop_vector=None, obs=(0,1),
                                   bins=np.arange(pr_mdl.n_states_+1))
 
     for i in range(pr_mdl.n_states_):
-        #have atleast 10 samples
+        #have at least 5 samples
         ind = np.random.choice(len(x_obs[i]), np.max((5, b_c[i])))
         _x_val.extend(np.array(x_obs[i])[ind])
         _y_val.extend(np.array(y_obs[i])[ind])
@@ -55,7 +55,7 @@ def scipy_kde(pr_mdl, pop_vector=None, obs=(0,1),
 def two_dim_free_energy_kde(pr_mdl, limits_dict={}, pop_vector=None,
                             obs=(0,1), n_samples=30000,
                             bw_method='scott',
-                            mlp_fct=1.2):
+                            mlp_fct=1.0):
 
     """
     Get a free energy landscape for a protein mdl
