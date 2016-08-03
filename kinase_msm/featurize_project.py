@@ -10,7 +10,6 @@ import pandas as pd
 import itertools
 import warnings
 from msmbuilder.featurizer import DihedralFeaturizer
-from .feature_selection import _parse_alignment_file, _map_residue_ind_seq_ind
 
 def featurize_file(job_tuple):
 
@@ -90,57 +89,3 @@ def featurize_project_wrapper(yaml_file, protein, feat=None, stride=1, view=None
 
 
     return result
-
-
-def create_equivalent_contact_featurizer(yaml_file, alignment_file,
-                                         protein_list=None,
-                                         wanted_sequence_ind_locs=None, **kwargs):
-    """
-    Create a equivalent contacts featurizer for a set of proteins
-    :param yaml_file: yaml file location
-    :param alignment_file: alignment file location
-    :param wanted_sequence_ind_locs: wanted sequence index positions in the alignment
-    You need to just figure out the wanted location for one residue.
-    _map_residue_ind_seq_ind function can help with this
-    :param kwargs: kwargs for the contact featurizer
-    :return: dictionary of contact featurizers. one for each protein
-    """
-    featurizer_dict={}
-
-    #load alignment file
-    yaml_file = load_yaml_file(yaml_file)
-    alignment_file = _parse_alignment_file(alignment_file)
-    if wanted_sequence_ind_locs is None:
-        #use the max length(probably a horrible idea)
-        max_seq_len = max([len(alignment_file[i]) for i in alignment_file.keys()])
-        wanted_sequence_ind_locs = [i for i in range(max_seq_len)]
-
-    if protein_list is None:
-        protein_list = yaml_file["protein_list"]
-    for protein in protein_list:
-        print(protein)
-        #get a list of residues we can keep
-        can_keep=[]
-        #get mapping and seq
-        prt_mapping, prt_seq = _map_residue_ind_seq_ind(yaml_file, protein,
-                                                        alignment_file[protein])
-        #for wanted positions in the massive wanted indices list
-        inv_map = {v: k for k, v in prt_mapping.items()}
-
-        for position in wanted_sequence_ind_locs:
-            #get the
-            #get the possible codes at every position
-            possible_codes = set([alignment_file[p][position] for p in alignment_file.keys()])
-            #if there is not a missing residue
-            if not "-" in possible_codes:
-                # get the inverse mapping and add it to the list of can keep
-                residue_index = inv_map[position]
-                can_keep.append(residue_index)
-        #sort it because i dont want random bs issues.
-        can_keep = np.sort(np.concatenate(can_keep))
-        #get its pairs
-        pairs = [i for i in itertools.combinations(can_keep, 2)]
-
-        featurizer_dict[protein] = ContactFeaturizer(contacts=pairs, **kwargs)
-
-    return featurizer_dict
