@@ -10,6 +10,7 @@ from kinase_msm.featurize_project import _check_output_folder_exists
 from kinase_msm.data_loader import load_random_traj, \
     enter_protein_data_dir, enter_protein_mdl_dir
 from sklearn.base import clone
+import itertools
 """
 Set of routines to select common features amongst
 proteins based upon their sequence similarity.
@@ -254,13 +255,14 @@ def create_equivalent_contact_featurizer(yaml_file, alignment_file,
     #load alignment file
     yaml_file = load_yaml_file(yaml_file)
     alignment_file = _parse_alignment_file(alignment_file)
+    if protein_list is None:
+        protein_list = yaml_file["protein_list"]
+
     if wanted_sequence_ind_locs is None:
         #use the max length(probably a horrible idea)
         max_seq_len = max([len(alignment_file[i]) for i in alignment_file.keys()])
         wanted_sequence_ind_locs = [i for i in range(max_seq_len)]
 
-    if protein_list is None:
-        protein_list = yaml_file["protein_list"]
     for protein in protein_list:
         print(protein)
         #get a list of residues we can keep
@@ -281,7 +283,7 @@ def create_equivalent_contact_featurizer(yaml_file, alignment_file,
                 residue_index = inv_map[position]
                 can_keep.append(residue_index)
         #sort it because i dont want random bs issues.
-        can_keep = np.sort(np.concatenate(can_keep))
+        can_keep = np.sort(can_keep)
         #get its pairs
         pairs = [i for i in itertools.combinations(can_keep, 2)]
 
