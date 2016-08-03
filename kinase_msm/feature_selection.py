@@ -53,8 +53,9 @@ def _present_for_all(protein, prt_mapping, prt_seq, aligned_dict):
     return result_vector
 
 
-def _map_residue_ind_seq_ind(yaml_file, protein, aligned_seq):
-    trj = load_random_traj(yaml_file, protein)
+def _map_residue_ind_seq_ind(yaml_file, protein, aligned_seq, trj=None):
+    if trj is None:
+        trj = load_random_traj(yaml_file, protein)
     mapping = {}
     seq_index = 0
     prt_seq = trj.top.to_fasta(chain=0)
