@@ -5,11 +5,12 @@ import numpy as np
 import pandas as pd
 from multiprocessing import Pool
 from msmbuilder.utils import verboseload, verbosedump
-from kinase_msm.data_loader import load_yaml_file
-from kinase_msm.featurize_project import _check_output_folder_exists
-from kinase_msm.data_loader import load_random_traj, \
+from .data_loader import load_yaml_file
+from .featurize_project import _check_output_folder_exists
+from .data_loader import load_random_traj, \
     enter_protein_data_dir, enter_protein_mdl_dir
 from sklearn.base import clone
+from msmbuilder.featurizer import ContactFeaturizer
 import itertools
 """
 Set of routines to select common features amongst
