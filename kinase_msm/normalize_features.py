@@ -31,23 +31,22 @@ def normalize_project_series(yaml_file, output_folder="normalized_features",
     #setup normalizer
     if nrm is None:
         nrm = preprocessing.StandardScaler()
+        all_data = {}
+        for prt in yaml_file["protein_list"]:
+            with enter_protein_data_dir(yaml_file, prt):
+                print(prt)
+                flist = glob.glob("./%s/*.jl"%(yaml_file["feature_dir"]))[::stride]
+                for f in flist:
+                     all_data[f]=verboseload(f)
 
-    all_data = {}
-    for prt in yaml_file["protein_list"]:
-        with enter_protein_data_dir(yaml_file, prt):
-            print(prt)
-            flist = glob.glob("./%s/*.jl"%(yaml_file["feature_dir"]))[::stride]
-            for f in flist:
-                 all_data[f]=verboseload(f)
+        seq=[]
+        for i in all_data.keys():
+           seq.extend(all_data[i])
 
-    seq=[]
-    for i in all_data.keys():
-       seq.extend(all_data[i])
-
-    #fit it
-    nrm.fit(seq)
-    #dump it into the mdl dir.
-    verbosedump(nrm,"%s/nrm.h5"%yaml_file["mdl_dir"])
+        #fit it
+        nrm.fit(seq)
+        #dump it into the mdl dir.
+        verbosedump(nrm,"%s/nrm.h5"%yaml_file["mdl_dir"])
 
     for prt in yaml_file["protein_list"]:
         _check_output_folder_exists(yaml_file, prt, output_folder)
