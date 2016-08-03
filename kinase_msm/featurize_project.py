@@ -10,6 +10,7 @@ import pandas as pd
 import itertools
 import warnings
 from msmbuilder.featurizer import DihedralFeaturizer
+from .feature_selection import _parse_alignment_file, _map_residue_ind_seq_ind
 
 def featurize_file(job_tuple):
 
