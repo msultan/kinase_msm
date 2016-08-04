@@ -240,7 +240,9 @@ def test_series_slicer(yaml_file, folder_name="sliced_feature_dir"):
 
 def create_equivalent_contact_featurizer(yaml_file, alignment_file,
                                          protein_list=None,
-                                         wanted_sequence_ind_locs=None, **kwargs):
+                                         wanted_sequence_ind_locs=None,
+                                         same_residue=True,
+                                         **kwargs):
     """
     Create a equivalent contacts featurizer for a set of proteins
     :param yaml_file: yaml file location
@@ -248,6 +250,8 @@ def create_equivalent_contact_featurizer(yaml_file, alignment_file,
     :param wanted_sequence_ind_locs: wanted sequence index positions in the alignment
     You need to just figure out the wanted location for one residue.
     _map_residue_ind_seq_ind function can help with this
+    :same residue: True is you would restrict to having the same residue at the same
+    sequence position.
     :param kwargs: kwargs for the contact featurizer
     :return: dictionary of contact featurizers. one for each protein
     """
@@ -279,7 +283,10 @@ def create_equivalent_contact_featurizer(yaml_file, alignment_file,
             #get the possible codes at every position
             possible_codes = set([alignment_file[p][position] for p in alignment_file.keys()])
             #if there is not a missing residue
+
             if not "-" in possible_codes:
+                if same_residue and len(set(possible_codes))!=1:
+                    continue
                 # get the inverse mapping and add it to the list of can keep
                 residue_index = inv_map[position]
                 can_keep.append(residue_index)
