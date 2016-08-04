@@ -52,11 +52,11 @@ def normalize_project_series(yaml_file, output_folder="normalized_features",
         _check_output_folder_exists(yaml_file, prt, output_folder)
 
         with enter_protein_data_dir(yaml_file, prt):
-            output_folder = os.path.abspath(output_folder)
+            output_folder_path = os.path.abspath(output_folder)
             flist = glob.glob("./%s/*.jl"%(yaml_file["feature_dir"]))
             for f in flist:
                 res = verboseload(f)
                 res = nrm.transform(res)
-                verbosedump(res,"%s/%s"%(output_folder,os.path.basename(f)))
+                verbosedump(res,"%s/%s"%(output_folder_path, os.path.basename(f)))
 
     return
