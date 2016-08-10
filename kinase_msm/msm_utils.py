@@ -36,19 +36,21 @@ def sample_states(yaml_file, prt_name):
 
     return
 
-def kdtree_maker(prt):
-    key_list = list(prt.tica_data.keys())
+def kdtree_maker(prt,stride=1):
+    key_list = list(prt.tica_data.keys())[::stride]
     data = [prt.tica_data[i] for i in key_list]
 
     tree = KDTree(data)
     return key_list, tree
 
-def sample_state_centroid(yaml_file, prt_name, states='all', n_frames=10, output_name="centroids.xtc"):
+def sample_state_centroid(yaml_file, prt_name, states='all', n_frames=10, output_name="centroids.xtc",
+                          stride=1):
     """
     :param yaml_file: The series' yaml file
     :param prt_name: The name of the protein
     :param state: Int or list of ints or 'all'
     :param n_frames: Number of output frames
+    :param stride: Stride for files. Useful if too many files are there
     :return: output name(FILE IS DUMPED AS XTC)
     """
     yaml_file = load_yaml_file(yaml_file)
@@ -63,7 +65,7 @@ def sample_state_centroid(yaml_file, prt_name, states='all', n_frames=10, output
     else:
         raise ValueError("States needs to  either a int or list or all")
 
-    key_list, tree = kdtree_maker(prt)
+    key_list, tree = kdtree_maker(prt,stride)
 
     trj_list=[]
     for state in states:
