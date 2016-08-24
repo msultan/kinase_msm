@@ -45,7 +45,7 @@ def _load_project_clone(protein, project, run, clone):
         trj = t[0] + t[1:]
 
     return trj, trj.remove_solvent()
-@nottest
+
 @with_setup(_setup_test, _cleanup_test)
 def test_convert_project():
 
