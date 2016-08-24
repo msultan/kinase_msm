@@ -115,7 +115,8 @@ def _frame_loader(yaml_file, prt, key_list, indices, save_trj, fname=None):
         traj_index, frame_index = ind
         traj_name = key_list[traj_index]
         traj_list.append(load_frame(yaml_file["base_dir"],
-                                    prt.name, traj_name, frame_index))
+                                    prt.name, yaml_file["protein_dir"],
+                                    traj_name, frame_index))
 
     trj = traj_list[0] + traj_list[1:]
     if save_trj and fname is not None:

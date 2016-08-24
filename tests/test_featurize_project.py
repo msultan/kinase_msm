@@ -32,7 +32,7 @@ def test_dihedral_feat():
         featurize_project_wrapper(yaml_file, prt, feat=None, stride=1, view=pool)
 
         feat = DihedralFeaturizer(types=['phi', 'psi','chi1'])
-        flist = glob.glob(os.path.join(base_dir, prt , "protein_traj/*.hdf5"))
+        flist = glob.glob(os.path.join(base_dir, prt , yaml_file["protein_dir"],"*.hdf5"))
         for i in np.random.choice(flist, 3):
             trj = mdt.load(i)
             my_feat = feat.partial_transform(trj)

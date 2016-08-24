@@ -112,7 +112,7 @@ def test_map_tic_component():
             os.path.join(yaml_file["feature_dir"],
                          "feature_descriptor.h5")
         ))
-        trj = mdt.load(os.path.join("protein_traj", "fake_proj1_0_0.hdf5"))
+        trj = mdt.load(os.path.join(yaml_file["protein_dir"], "fake_proj1_0_0.hdf5"))
 
 
     ser = ProteinSeries(yaml_file,base_dir)

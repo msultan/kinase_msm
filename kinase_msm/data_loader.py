@@ -34,27 +34,28 @@ def enter_protein_mdl_dir(yaml_file, protein):
 def load_random_traj(yaml_file, protein):
     yaml_file = load_yaml_file(yaml_file)
     with enter_protein_data_dir(yaml_file, protein):
-        traj_folder = os.path.join(os.getcwd(),"protein_traj")
+        traj_folder = os.path.join(os.getcwd(), yaml_file["protein_dir"])
         traj_files = sorted(glob.glob(os.path.join(traj_folder,"*.hdf5" )),
                         key=keynat)
-        trj = load_traj(yaml_file["base_dir"], protein,
+        trj = load_traj(yaml_file["base_dir"], protein,yaml_file["protein_dir"],
                         os.path.basename(random.choice(traj_files)))
     #need just one
     return trj
 
-def load_traj(base_dir, protein, filename):
+def load_traj(base_dir, protein, traj_folder, filename):
     """
     :param base_dir: Project's base dir
     :param protein: Protein of interest
+    :param traj_folder: Protein's trajectory folder name
     :param filename: file to load
     :return: the trajectory obj
     """
-    os.chdir(os.path.join(base_dir, protein))
+    os.chdir(os.path.join(base_dir, protein,traj_folder))
     filename = os.path.splitext(filename)[0]
-    return mdt.load("./protein_traj/%s.hdf5" % filename)
+    return mdt.load("%s.hdf5" %filename)
 
 
-def load_frame(base_dir, protein, filename, frame_index):
+def load_frame(base_dir, protein, traj_folder, filename, frame_index):
     """
     :param base_dir: Project's base dir
     :param protein: Protein of interest
@@ -62,10 +63,9 @@ def load_frame(base_dir, protein, filename, frame_index):
     :param frame_index: needed frame
     :return: The required frame
     """
-    os.chdir(os.path.join(base_dir, protein))
+    os.chdir(os.path.join(base_dir, protein,traj_folder))
     filename = os.path.splitext(filename)[0]
-    return mdt.load_hdf5(filename="./protein_traj/%s.hdf5" % filename,
-                          frame=frame_index)
+    return mdt.load_frame(filename="%s.hdf5"%filename, index=frame_index)
 
 
 def _sanity_test(base_dir, protein, msm_mdl, tica_data, kmeans_mdl, assignments):

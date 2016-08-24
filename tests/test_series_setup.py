@@ -21,6 +21,7 @@ def test_setup_series_analysis():
     mdl_dir = os.path.join(base_dir,"new_mdl_dir")
     feature_dir = "feature_dir"
     series_name = "fake_series"
+
     protein_list = ["fake_kinase1", "fake_kinase2"]
     project_dict = {"fake_kinase1": ["fake_proj1", "fake_proj2"],
                     "fake_kinase2": ["fake_proj3"]}

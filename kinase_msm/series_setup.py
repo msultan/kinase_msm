@@ -11,6 +11,7 @@ yaml_template = """
 base_dir : {base_dir}
 mdl_dir : {mdl_dir}
 feature_dir: {feature_dir}
+protein_dir: {protein_dir}
 series_name : {series_name}
 protein_list : {protein_list}
 project_dict : {project_dict}
@@ -19,7 +20,7 @@ mdl_params : {mdl_params}
 
 
 def setup_series_analysis(base_dir, mdl_dir, feature_dir, series_name, protein_list,
-                          project_dict, mdl_params=None):
+                          project_dict,mdl_params=None, protein_dir="protein_traj"):
     """
     :param base_dir: Directory where all the data is found
     :param series_name: Series name for the set of kinases
@@ -51,6 +52,7 @@ def setup_series_analysis(base_dir, mdl_dir, feature_dir, series_name, protein_l
                                                    mdl_dir=mdl_dir,
                                                    feature_dir=feature_dir,
                                                    series_name=series_name,
+                                                   protein_dir=protein_dir,
                                                    protein_list=protein_list,
                                                    project_dict=project_dict,
                                                    mdl_params=None

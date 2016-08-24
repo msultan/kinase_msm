@@ -75,7 +75,7 @@ def featurize_project_wrapper(yaml_file, protein, feat=None, stride=1, view=None
     _check_output_folder_exists(yaml_file, protein)
     #get the paths
     if protein_only:
-        traj_folder = os.path.join(base_dir, protein, "protein_traj")
+        traj_folder = os.path.join(base_dir, protein, yaml_file["protein_dir"])
     else:
         traj_folder = os.path.join(base_dir, protein, "trajectories")
     traj_files = sorted(glob.glob(os.path.join(traj_folder,"*.hdf5" )),

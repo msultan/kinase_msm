@@ -12,12 +12,12 @@ from .tica_utils import _frame_loader
 
 def _random_sample_state(jt):
     #get where the state exists
-    state, assignment_matrix, key_mapping, base_dir, prt_name = jt
+    state, assignment_matrix, key_mapping, base_dir, prt_name ,prt_folder= jt
     trj, frame = np.where(assignment_matrix==state)
     index = np.random.randint(0,len(trj))
     filename = key_mapping[trj[index]]
     frame_index = frame[index]
-    trj_frame = load_frame(base_dir, prt_name, filename, frame_index)
+    trj_frame = load_frame(base_dir, prt_name, prt_folder, filename, frame_index)
     return trj_frame
 
 
@@ -108,7 +108,8 @@ def sample_msm_traj(yaml_file, prt_name, n_steps, starting_state = None,
     # there we use the original assignment matrix too
     key_mapping, assignment_matrix = create_assignment_matrix(prt.assignments)
 
-    jbs =[(state, assignment_matrix, key_mapping, ser.base_dir, prt.name) for state in msm_traj]
+    jbs =[(state, assignment_matrix, key_mapping, ser.base_dir, prt.name, yaml_file["protein_dir"])
+          for state in msm_traj]
     p = Pool(int(cpu_count()/4))
     trj_list = p.map(_random_sample_state, jbs)
     print("Done")
