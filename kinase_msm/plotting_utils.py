@@ -171,6 +171,61 @@ def tica_histogram(prj, prt, tic_list, x_array=None, y_array=None, n_bins=100):
 
     return H, H_overall, x_center
 
+def bootstrap_one_dim_free_energy(prt, obs, bins=100):
+    """
+    :param prt: Protein model
+    :param obs: observable
+    :param bins: bins(either int or array)
+    :return:
+    """
+    free_energy = []
+    if bins is None or type(bins)==int:
+        max_val = np.max(np.concatenate(list(obs.values())))
+        min_val = np.min(np.concatenate(list(obs.values())))
+        bins = np.linspace(min_val, max_val, bins)
+    else:
+        n_bins = len(bins) - 1
+
+    state_x_obs_dict = _map_obs_to_state(prt, obs)
+
+    #get the centers stacked nicely
+    _labels = ["mean","lower","upper"]
+    nlbl = len(_labels)
+
+    tic_cen = np.repeat([(bins[:-1] + bins[1:]) / 2],
+                        nlbl,axis=0).flatten()
+    protein_name = np.repeat(prt.name, nlbl * n_bins).flatten()
+
+    mdl_index = np.array([np.repeat(_labels[i],n_bins)
+                          for i in range(nlbl)]).flatten()
+
+    #get data
+    H,H_msm = _one_dim_histogram(prt.msm.populations_
+                                   ,state_x_obs_dict,x_array=bins)
+
+    mean_ = prt.bootrap_msm.mapped_populations_mean_
+    lower_ = prt.bootrap_msm.mapped_populations_mean_\
+                      - 1.96*prt.bootrap_msm.mapped_populations_sem_
+    upper_ = prt.bootrap_msm.mapped_populations_mean_\
+                      + 1.96*prt.bootrap_msm.mapped_populations_sem_
+
+    _data = [mean_, lower_, upper_]
+
+    for pop,lbl in zip(_data, _labels):
+        H_overall=np.zeros(n_bins)
+        assert(len(pop)==len(H.keys()))
+        for j in range(prt.n_states_):
+            H_overall = H_overall + pop[j]*H[j]
+            #print(pop[j],H[j])
+        #convert to free enenrgy
+        if np.all(np.isnan(H_overall)):
+            print(pop,lbl,type(H))
+        H_overall = -0.6*np.log(H_overall)
+        free_energy.extend(H_overall)
+
+    df=pd.DataFrame([list(tic_cen),list(free_energy),list(protein_name),list(mdl_index)]).T
+    df.columns=["obs_value","free_energy","protein_name","mdl_index"]
+    return df
 
 def bootstrap_one_dim_tic_free_energy(prj,prt,tic_index,n_bins=100 ,lin_spaced_tic=None):
     """
@@ -297,45 +352,48 @@ def two_dim_tic_free_energy(prj, prt, tic_list, x_array=None, y_array=None, n_bi
 
     return H_overall
 
-def one_dim_free_energy(prt, x_obs, bins):
+def one_dim_free_energy(prt, obs, bins=100, errorbars=False):
     """
-    :param prj: Series we are working with
     :param prt: Protein
-    :param x_obs: Dictonary of obs for every frame
+    :param obs: Dictonary of obs for every frame
     :param bins: either a list of lin_space_points or number of bins to use
     :return: a pandas dataframe containing the free energy for the
     every point along the tic coordinate.
     """
-    free_energy=[]
-    state_x_obs_dict = _map_obs_to_state(prt, x_obs)
-
+    free_energy = []
     if bins is None or type(bins)==int:
-        max_val = np.max(np.concatenate(list(x_obs.values())))
-        min_val = np.min(np.concatenate(list(x_obs.values())))
+        max_val = np.max(np.concatenate(list(obs.values())))
+        min_val = np.min(np.concatenate(list(obs.values())))
         bins = np.linspace(min_val, max_val, bins)
     else:
         n_bins = len(bins) - 1
 
-    #get the centers stacked nicely
-    bin_center = np.repeat([(bins[:-1] + bins[1:]) / 2],
-                           1 , axis=0).flatten()
-    protein_name = np.repeat(prt.name, n_bins).flatten()
+    state_x_obs_dict = _map_obs_to_state(prt, obs)
 
-    mdl_index = np.repeat("mle", n_bins).flatten()
+    #get the centers stacked nicely
+    tic_center = np.repeat([(bins[:-1] + bins[1:]) / 2],
+                           1 , axis=0).flatten()
+    protein_name = np.repeat(prt.name,n_bins).flatten()
+
+    mdl_index = np.repeat("mle",n_bins).flatten()
 
     #get data
-    H,H_msm, =  _one_dim_histogram(prt.msm.populations_,
-                                   x_dict=state_x_obs_dict,
-                                   x_array=bins)
+    H,H_msm = _one_dim_histogram(prt.msm.populations_
+                                   ,state_x_obs_dict,x_array=bins)
 
     free_energy.extend(H_msm)
 
-    msm_df=pd.DataFrame([list(bin_center),list(free_energy),
+    msm_df=pd.DataFrame([list(tic_center),list(free_energy),
                          list(protein_name),list(mdl_index)]).T
 
-    msm_df.columns=["tic_value","free_energy","protein_name","mdl_index"]
+    msm_df.columns=["obs_value","free_energy","protein_name","mdl_index"]
 
-    return msm_df
+    if errorbars:
+        bootstrap_df = bootstrap_one_dim_free_energy(prt, obs, bins=bins)
+        df = pd.concat([msm_df, bootstrap_df])
+        return df
+    else:
+        return msm_df
 
 def two_dim_free_energy(prt, x_obs, y_obs, bins=None):
     """
