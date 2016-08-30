@@ -241,7 +241,7 @@ def test_series_slicer(yaml_file, folder_name="sliced_feature_dir"):
 
 def create_equivalent_contact_featurizer(yaml_file, alignment_file,
                                          protein_list=None,
-                                         wanted_sequence_ind_locs=None,
+                                         pairs=None,
                                          same_residue=True,
                                          transform=None,
                                          **kwargs):
@@ -249,7 +249,7 @@ def create_equivalent_contact_featurizer(yaml_file, alignment_file,
     Create a equivalent contacts featurizer for a set of proteins
     :param yaml_file: yaml file location
     :param alignment_file: alignment file location
-    :param wanted_sequence_ind_locs: wanted sequence index positions in the alignment
+    :param pairs: wanted sequence index positions in the alignment
     You need to just figure out the wanted location for one residue.
     _map_residue_ind_seq_ind function can help with this
     :same residue: True is you would restrict to having the same residue at the same
@@ -265,11 +265,11 @@ def create_equivalent_contact_featurizer(yaml_file, alignment_file,
     if protein_list is None:
         protein_list = yaml_file["protein_list"]
 
-    if wanted_sequence_ind_locs is None:
+    if pairs is None:
         #use the max length(probably a horrible idea)
         max_seq_len = max([len(alignment_file[i]) for i in alignment_file.keys()])
-        wanted_sequence_ind_locs = [i for i in range(max_seq_len)]
-
+        pairs = [i for i in itertools.combinations(range(max_seq_len), 2)]
+    
     for protein in protein_list:
         print(protein)
         #get a list of residues we can keep
@@ -280,7 +280,7 @@ def create_equivalent_contact_featurizer(yaml_file, alignment_file,
         #for wanted positions in the massive wanted indices list
         inv_map = {v: k for k, v in prt_mapping.items()}
 
-        for position in wanted_sequence_ind_locs:
+        for position in pairs:
             #get the
             #get the possible codes at every position
             possible_codes = set([alignment_file[p][position] for p in alignment_file.keys()])
@@ -295,13 +295,13 @@ def create_equivalent_contact_featurizer(yaml_file, alignment_file,
         #sort it because i dont want random bs issues.
         can_keep = np.sort(can_keep)
         #get its pairs
-        pairs = [i for i in itertools.combinations(can_keep, 2)]
+        actual_pairs = [i for i in itertools.combinations(can_keep, 2) if i in pairs]
         if transform=='logistic':
-            featurizer_dict[protein] = LogisticContactFeaturizer(contacts=pairs, **kwargs)
+            featurizer_dict[protein] = LogisticContactFeaturizer(contacts=actual_pairs, **kwargs)
         elif transform=='binary':
-            featurizer_dict[protein] = BinaryContactFeaturizer(contacts=pairs, **kwargs)
+            featurizer_dict[protein] = BinaryContactFeaturizer(contacts=actual_pairs, **kwargs)
         elif transform is None or transform=="none":
-            featurizer_dict[protein] = ContactFeaturizer(contacts=pairs, **kwargs)
+            featurizer_dict[protein] = ContactFeaturizer(contacts=actual_pairs, **kwargs)
         else:
             raise ValueError("type needs to be one of logistic, binary, none")
     return featurizer_dict
