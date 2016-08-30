@@ -281,7 +281,6 @@ def bootstrap_one_dim_tic_free_energy(prj,prt,tic_index,n_bins=100 ,lin_spaced_t
     df.columns=["tic_value","free_energy","protein_name","mdl_index"]
     return df
 
-
 def one_dim_tic_free_energy(prj, prt, tic_index, n_bins=100 ,
                         lin_spaced_tic=None, errorbars=False, use_mean=True):
     """
@@ -326,7 +325,6 @@ def one_dim_tic_free_energy(prj, prt, tic_index, n_bins=100 ,
         return df
     else:
         return msm_df
-
 
 def two_dim_tic_free_energy(prj, prt, tic_list, x_array=None, y_array=None, n_bins=100, use_mean=True):
     #basic sanity tests

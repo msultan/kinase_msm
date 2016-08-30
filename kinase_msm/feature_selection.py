@@ -10,7 +10,8 @@ from kinase_msm.featurize_project import _check_output_folder_exists
 from kinase_msm.data_loader import load_random_traj, \
     enter_protein_data_dir, enter_protein_mdl_dir
 from sklearn.base import clone
-from msmbuilder.featurizer import ContactFeaturizer
+from msmbuilder.featurizer import ContactFeaturizer,LogisticContactFeaturizer,\
+    BinaryContactFeaturizer
 import itertools
 """
 Set of routines to select common features amongst
@@ -242,6 +243,7 @@ def create_equivalent_contact_featurizer(yaml_file, alignment_file,
                                          protein_list=None,
                                          wanted_sequence_ind_locs=None,
                                          same_residue=True,
+                                         transform=None,
                                          **kwargs):
     """
     Create a equivalent contacts featurizer for a set of proteins
@@ -294,7 +296,12 @@ def create_equivalent_contact_featurizer(yaml_file, alignment_file,
         can_keep = np.sort(can_keep)
         #get its pairs
         pairs = [i for i in itertools.combinations(can_keep, 2)]
-
-        featurizer_dict[protein] = ContactFeaturizer(contacts=pairs, **kwargs)
-
+        if transform=='logistic':
+            featurizer_dict[protein] = LogisticContactFeaturizer(contacts=pairs, **kwargs)
+        elif transform=='binary':
+            featurizer_dict[protein] = BinaryContactFeaturizer(contacts=pairs, **kwargs)
+        elif transform is None or transform=="none":
+            featurizer_dict[protein] = ContactFeaturizer(contacts=pairs, **kwargs)
+        else:
+            raise ValueError("type needs to be one of logistic, binary, none")
     return featurizer_dict
