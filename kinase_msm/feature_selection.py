@@ -280,7 +280,7 @@ def create_equivalent_contact_featurizer(yaml_file, alignment_file,
         #for wanted positions in the massive wanted indices list
         inv_map = {v: k for k, v in prt_mapping.items()}
 
-        for position in pairs:
+        for position in np.unique(pairs):
             #get the
             #get the possible codes at every position
             possible_codes = set([alignment_file[p][position] for p in alignment_file.keys()])
@@ -296,7 +296,6 @@ def create_equivalent_contact_featurizer(yaml_file, alignment_file,
         can_keep = np.sort(can_keep)
         #get its pairs
         actual_pairs = np.array([i for i in itertools.combinations(can_keep, 2) if i in pairs])
-        
         if transform=='logistic':
             featurizer_dict[protein] = LogisticContactFeaturizer(contacts=actual_pairs, **kwargs)
         elif transform=='binary':
