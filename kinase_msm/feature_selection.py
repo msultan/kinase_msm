@@ -269,7 +269,7 @@ def create_equivalent_contact_featurizer(yaml_file, alignment_file,
         #use the max length(probably a horrible idea)
         max_seq_len = max([len(alignment_file[i]) for i in alignment_file.keys()])
         pairs = [i for i in itertools.combinations(range(max_seq_len), 2)]
-    
+
     for protein in protein_list:
         print(protein)
         #get a list of residues we can keep
@@ -295,7 +295,8 @@ def create_equivalent_contact_featurizer(yaml_file, alignment_file,
         #sort it because i dont want random bs issues.
         can_keep = np.sort(can_keep)
         #get its pairs
-        actual_pairs = [i for i in itertools.combinations(can_keep, 2) if i in pairs]
+        actual_pairs = np.array([i for i in itertools.combinations(can_keep, 2) if i in pairs])
+        
         if transform=='logistic':
             featurizer_dict[protein] = LogisticContactFeaturizer(contacts=actual_pairs, **kwargs)
         elif transform=='binary':
