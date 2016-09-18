@@ -261,11 +261,12 @@ def bootstrap_one_dim_tic_free_energy(prj,prt,tic_index,n_bins=100 ,lin_spaced_t
     #get data
     H,H_msm,_ = tica_histogram(prj,prt,tic_index,x_array=lin_spaced_tic)
 
-    mean_ = prt.bootrap_msm.mapped_populations_mean_
-    lower_ = prt.bootrap_msm.mapped_populations_mean_\
-                      - 1.96*prt.bootrap_msm.mapped_populations_sem_
-    upper_ = prt.bootrap_msm.mapped_populations_mean_\
-                      + 1.96*prt.bootrap_msm.mapped_populations_sem_
+    prt.bootrap_msm.mapped_populations_[prt.bootrap_msm.mapped_populations_==0]=np.nan
+
+    mean_ = np.nanmean(prt.bootrap_msm.mapped_populations_,axis=0)
+    lower_ = np.nanpercentile(prt.bootrap_msm.mapped_populations_,5,axis=0)
+    upper_ = np.nanpercentile(prt.bootrap_msm.mapped_populations_,95,axis=0)
+
 
     _data = [mean_, lower_, upper_]
 
