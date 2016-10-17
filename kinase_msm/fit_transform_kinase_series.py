@@ -159,7 +159,7 @@ def fit_bootstrap(yaml_file,pool=None):
             print(protein)
             assignments = verboseload("assignments.pkl")
             msm_mdl =BootStrapMarkovStateModel(n_procs=2,
-                                               msm_args = current_mdl_params
+                                               msm_args = current_mdl_params,
                                                **bootstrap_mdl_params)
             msm_mdl.fit([assignments[i] for i in assignments.keys()], pool=pool)
             verbosedump(msm_mdl, "bootstrap_msm_mdl.pkl")
