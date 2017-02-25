@@ -61,7 +61,7 @@ def _map_residue_ind_seq_ind(yaml_file, protein, aligned_seq, trj=None):
         trj = load_random_traj(yaml_file, protein)
     mapping = {}
     seq_index = 0
-    prt_seq = trj.top.to_fasta(chain=0)
+    prt_seq = ''.join([i.code for i in trj.top.residues if i.is_protein])
     #test to make sure the alignment sequence matches with the protein sequence.
     #get rid of _ from the alignment to account for additions/deletions.
     assert(prt_seq==''.join([i for i in aligned_seq if i!="-"]))
