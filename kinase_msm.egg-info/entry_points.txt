@@ -1,3 +1,0 @@
-[console_scripts]
-tica_vmd = kinase_msm.vmd_write:main
-

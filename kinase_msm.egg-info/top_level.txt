@@ -1,2 +1,0 @@
-kinase_msm
-tests

@@ -2,7 +2,7 @@
 [![Build Status](https://travis-ci.org/msultan/kinase_msm.svg?branch=master)](https://travis-ci.org/msultan/kinase_msm)
 Framework for rapid multi-sequence analysis
 
-Kinase_MSM provides a framework for rapidly performing statistical analyses on large sets of protein simulation data. It was originally conceived for handling simulation data from families of kinases. It can be used to build single models from many simulations, project models from one protein to another protein, and more.
+Kinase_MSM provides a framework for analyzing multi-sequence protein sets. It was originally conceived for handling simulation data from families of kinases. It can be used to build single models from many simulations, project models from one protein to another protein, and more.
 
 Kinase_MSM is intended to work with the following directory structure for input data. The base directory "base_dir" contains subdirectories associated with each protein in the series. Each of these subdirectories contains raw trajectory data associated with a given project. Each protein directory should contain a directory of featurized data, "features_dir", generated via other means.
 
