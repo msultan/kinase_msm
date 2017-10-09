@@ -9,6 +9,7 @@ conda config --add channels omnia
 conda info -a
 conda create --yes -n _test python=$TRAVIS_PYTHON_VERSION `cat requirements.txt | xargs`
 source activate _test
+pip install --upgrade numpy
 pip install fastcluster
 pip install git+https://github.com/msmbuilder/msmbuilder.git
 python setup.py install
