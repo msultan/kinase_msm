@@ -22,15 +22,39 @@ mdl_params : {mdl_params}
 def setup_series_analysis(base_dir, mdl_dir, feature_dir, series_name, protein_list,
                           project_dict,mdl_params=None, protein_dir="protein_traj"):
     """
-    :param base_dir: Directory where all the data is found
-    :param series_name: Series name for the set of kinases
-    :param protein_list: List of kinases
-    :param project_dict: dictionary of lists where each list
-    holds the projects corresponding to the kinase
-    :param mdl_params: Mdl that is being built
-    :return:The script will backup and current mdl_dir and make a new
-    directory with a clean set of subfolders and a yaml file. The
-    yaml file will also be returned to directly be fed into the fit transform.
+    This script sets up a framework for directories to perform multiple analyses of a series of
+    related proteins.  This may be a database of mutants, a family of related proteins, etc.
+
+	Input:
+
+    :param base_dir: Directory where all the data is found. base_dir should be organized as
+
+        base_dir
+          > protein_dir
+            > project_dir
+
+    where protein_dir corresponds to the names of proteins in the series, and project_dir
+    corresponds to data for a specific analysis.  TODO: don't understand project delineation here?
+
+    :param series_name: Series name for the series of proteins.
+
+    :param protein_list: List of proteins in the series.
+
+    :param project_dict: Dictionary keyed by the names of the proteins in the series, 
+          where each entry is a list of projects corresponding to that protein.
+
+    :param mdl_params: Parameters for the model that is being fit (tICA, MSM, etc). 
+
+    :return: The script will create the directory mdl_dir with the following structure:
+
+         mdl_dir
+           > protein_dir
+             > project_dir
+           project.yaml
+
+     where project.yaml details the model being fit.  If a directory named mdl_dir currently exists,
+    it will create a backup. 
+    TODO: ? The yaml file will also be returned to directly be fed into the fit transform.
     """
     if not os.path.isdir(base_dir):
         raise Exception("Base directory doesn't exist")
@@ -46,6 +70,7 @@ def setup_series_analysis(base_dir, mdl_dir, feature_dir, series_name, protein_l
                 raise Exception("Project %s for protein %s doesn't exist"
                                 % (project, protein))
 
+# Write yaml file in base_dir, detailing series analysis setup.
 
     with open(os.path.join(base_dir,"series.yaml"),'w') as yaml_out:
         yaml_file = yaml.load(yaml_template.format(base_dir=base_dir,
@@ -67,10 +92,12 @@ def setup_series_analysis(base_dir, mdl_dir, feature_dir, series_name, protein_l
         else:
             pass
 
+# make mdl_dir that has subdirs for each protein in the series.
         os.mkdir(mdl_dir)
         for protein in protein_list:
             os.mkdir(os.path.join(mdl_dir, protein))
 
+# write project.yaml file in mdl_dir, detailing project setup.
         with open(os.path.join(mdl_dir, 'project.yaml'), 'w') as yaml_out:
             yaml_file["mdl_params"]=mdl_params
             yaml_out.write(yaml.dump(yaml_file))
