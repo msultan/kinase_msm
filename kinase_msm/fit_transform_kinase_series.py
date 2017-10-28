@@ -197,6 +197,11 @@ def fit_bayes_msms(yaml_file):
                                                verbose=True).fit(
                 [assignments[i] for i in assignments.keys()])
             verbosedump(msm_mdl, "bayesmsm_mdl.pkl")
+            fixed_assignments = {}
+            for i in assignments.keys():
+                fixed_assignments[i] = msm_mdl.transform(
+                    assignments[i], mode='fill')[0]
+            verbosedump(fixed_assignments, 'fixed_assignments.pkl')
     return
 
 
